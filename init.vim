@@ -4,6 +4,7 @@
 call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
 
  Plug 'patstockwell/vim-monokai-tasty'
+ Plug 'neovim/nvim-lspconfig'
  Plug 'neoclide/coc.nvim', {'branch': 'release'}
  Plug 'nvim-lua/plenary.nvim'
  Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
@@ -18,6 +19,9 @@ call plug#begin(has('nvim') ? stdpath('data') . '/plugged' : '~/.vim/plugged')
  Plug 'vim-airline/vim-airline-themes'
  Plug 'roxma/vim-hug-neovim-rpc'
  Plug 'roxma/nvim-yarp', { 'do': 'pip install -r requirements.txt' }
+ Plug 'akinsho/bufferline.nvim', { 'tag': 'v2.*' }
+ Plug 'folke/which-key.nvim'
+ Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 
 function! UpdateRemotePlugins(...)
   " Needed to refresh runtime files
@@ -40,12 +44,18 @@ require('toggleterm-config')
 require('treesitter-config')
 require('rust-tools-config')
 require('nvim-tree-config')
+require("bufferline").setup{}
+require("which-key").setup {}
 EOF
 
 nnoremap <leader>n :NERDTreeFocus<CR>
 nnoremap <C-n> :NERDTree<CR>
 nnoremap <C-t> :NERDTreeToggle<CR>
 nnoremap <C-f> :NERDTreeFind<CR>
+
+nnoremap <silent>[b :BufferLineCycleNext<CR>
+nnoremap <silent>]b :BufferLineCyclePrev<CR>
+
 
 " Default keys
 call wilder#setup({
@@ -55,3 +65,4 @@ call wilder#setup({
       \ 'accept_key': '<Down>',
       \ 'reject_key': '<Up>',
       \ })
+
