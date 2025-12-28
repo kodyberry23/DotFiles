@@ -27,7 +27,7 @@ keybinds {
         
         // Pane management
         bind "Alt n"  { NewPane; }
-        bind "Alt N"  { NewPane "Down"; }
+        bind "Alt d"  { NewPane "Down"; }
         bind "Alt x"  { CloseFocus; }
         bind "Alt f"  { ToggleFocusFullscreen; }
         bind "Alt z"  { TogglePaneFrames; }
@@ -56,7 +56,7 @@ keybinds {
         
         // Pane management (works even when nvim is running)
         bind "Alt n"  { NewPane; SwitchToMode "Locked"; }
-        bind "Alt N"  { NewPane "Down"; SwitchToMode "Locked"; }
+        bind "Alt d"  { NewPane "Down"; SwitchToMode "Locked"; }
         bind "Alt x"  { CloseFocus; SwitchToMode "Locked"; }
         bind "Alt f"  { ToggleFocusFullscreen; SwitchToMode "Locked"; }
         bind "Alt z"  { TogglePaneFrames; SwitchToMode "Locked"; }
