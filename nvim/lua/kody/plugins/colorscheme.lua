@@ -13,6 +13,12 @@ return {
     plugins = {
       auto = true,
     },
+    on_highlights = function(hl, c)
+      hl.WinSeparator = {
+        fg = "#7AA2F7",
+        bg = "NONE",
+      }
+    end,
   },
   config = function(_, opts)
     require("tokyonight").setup(opts)

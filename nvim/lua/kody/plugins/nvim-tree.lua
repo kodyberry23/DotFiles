@@ -33,6 +33,6 @@ return {
     vim.api.nvim_set_hl(0, "NvimTreeNormal", { bg = "NONE" })
     vim.api.nvim_set_hl(0, "NvimTreeNormalNC", { bg = "NONE" })
     vim.api.nvim_set_hl(0, "NvimTreeEndOfBuffer", { bg = "NONE" })
-    vim.api.nvim_set_hl(0, "NvimTreeWinSeparator", { bg = "NONE" })
+    vim.api.nvim_set_hl(0, "NvimTreeWinSeparator", { fg = "#7AA2F7", bg = "NONE" })
   end,
 }

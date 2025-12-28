@@ -299,10 +299,6 @@ keymap.set("n", "<leader>qq", "<cmd>qa<CR>", { desc = "Quit all" })
 keymap.set("n", "<leader>qw", "<cmd>wqa<CR>", { desc = "Save and quit all" })
 keymap.set("n", "<leader>qQ", "<cmd>qa!<CR>", { desc = "Force quit all" })
 
--- Buffer delete
-keymap.set("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
-keymap.set("n", "<leader>bD", "<cmd>bdelete!<CR>", { desc = "Force delete buffer" })
-
 -- Toggle options (custom, not helix)
 keymap.set("n", "<leader>uw", "<cmd>set wrap!<CR>", { desc = "Toggle wrap" })
 keymap.set("n", "<leader>un", "<cmd>set relativenumber!<CR>", { desc = "Toggle relative number" })
