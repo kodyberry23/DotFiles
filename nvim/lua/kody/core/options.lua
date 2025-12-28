@@ -1,61 +1,55 @@
--- vim.g.loaded_netrw = 0
--- vim.g.loaded_netrwPlugin = 0
--- vim.cmd("let g:netrw_liststyle = 3")
--- Disable netrw banner
-vim.cmd("let g:netrw_banner = 0")
+local opt = vim.opt
 
--- line numbers
-vim.opt.nu = true
-vim.opt.relativenumber = true
+-- Line numbers
+opt.relativenumber = true
+opt.number = true
 
--- indentation
-vim.opt.tabstop = 2
-vim.opt.softtabstop = 2
-vim.opt.shiftwidth = 2
-vim.opt.expandtab = true
-vim.opt.smartindent = true
-vim.opt.wrap = false
+-- Tabs & Indentation
+opt.tabstop = 2
+opt.shiftwidth = 2
+opt.expandtab = true
+opt.autoindent = true
 
--- Always hard wrap at 80 characters in every file
-vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter" }, {
-    callback = function()
-        vim.opt_local.textwidth = 80
-        vim.opt_local.formatoptions:append("t") -- wrap text
-        vim.opt_local.smartindent = false
-    end,
-})
+-- Line wrapping
+opt.wrap = false
 
--- backup and undo
-vim.opt.swapfile = false
-vim.opt.backup = false
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
-vim.opt.undofile = true
+-- Search settings
+opt.ignorecase = true
+opt.smartcase = true
 
--- search
-vim.opt.inccommand = "split"
+-- Cursor line
+opt.cursorline = true
 
--- UI
-vim.opt.background = "dark"
-vim.opt.scrolloff = 8
-vim.opt.signcolumn = "yes"
+-- Appearance
+opt.termguicolors = true
+opt.background = "dark"
+opt.signcolumn = "yes"
 
--- folding (for nvim-ufo)
-vim.o.foldenable = true
-vim.o.foldmethod = "manual"
-vim.o.foldlevel = 99
-vim.o.foldcolumn = "0"
+-- Floating window borders (Neovim 0.11+)
+vim.o.winborder = "rounded"
 
--- window splits
-vim.opt.splitright = true
-vim.opt.splitbelow = true
+-- Clipboard
+opt.clipboard:append("unnamedplus")
 
--- misc
-vim.opt.guicursor = ""
-vim.opt.isfname:append("@-@")
-vim.opt.updatetime = 50
-vim.opt.colorcolumn = "80"
-vim.opt.clipboard:append("unnamedplus")
-vim.opt.mouse = "a"
+-- Split windows
+opt.splitright = true
+opt.splitbelow = true
 
--- disable tabline/buffer line at top
-vim.opt.showtabline = 0
+-- Swapfiles (disable)
+opt.swapfile = false
+
+-- Backspace
+opt.backspace = "indent,eol,start"
+
+-- Scrolling
+opt.scrolloff = 10 -- Keep 10 lines above/below cursor
+
+-- Update time (faster completion)
+opt.updatetime = 50
+
+-- Timeout for mapped sequences (default 1000ms is too slow)
+opt.timeoutlen = 300 -- Wait 300ms for next key in a mapped sequence
+opt.ttimeoutlen = 10 -- Wait 10ms for key codes (faster Esc)
+
+-- Encoding
+opt.iskeyword:append("-")
