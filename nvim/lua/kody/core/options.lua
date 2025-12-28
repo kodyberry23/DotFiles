@@ -47,9 +47,14 @@ opt.scrolloff = 10 -- Keep 10 lines above/below cursor
 -- Update time (faster completion)
 opt.updatetime = 50
 
+-- Auto-reload files changed outside of vim
+opt.autoread = true
+
 -- Timeout for mapped sequences (default 1000ms is too slow)
 opt.timeoutlen = 300 -- Wait 300ms for next key in a mapped sequence
 opt.ttimeoutlen = 10 -- Wait 10ms for key codes (faster Esc)
 
 -- Encoding
 opt.iskeyword:append("-")
+
+opt.guicursor = "n-v-c-i:block"

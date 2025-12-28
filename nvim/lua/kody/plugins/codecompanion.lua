@@ -3,6 +3,7 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-treesitter/nvim-treesitter",
+    "zbirenbaum/copilot.lua",
   },
   cmd = {
     "CodeCompanion",
@@ -16,7 +17,7 @@ return {
     { "ga", "<cmd>CodeCompanionChat Add<cr>", mode = "v", desc = "Add to chat" },
   },
   opts = {
-    strategies = {
+    interactions = {
       chat = {
         adapter = "copilot",
       },
@@ -25,6 +26,15 @@ return {
       },
     },
     adapters = {
+      copilot = function()
+        return require("codecompanion.adapters").extend("copilot", {
+          schema = {
+            model = {
+              default = "claude-3.5-sonnet",
+            },
+          },
+        })
+      end,
       anthropic = function()
         return require("codecompanion.adapters").extend("anthropic", {
           env = {
@@ -32,15 +42,6 @@ return {
           },
         })
       end,
-      copilot = function()
-        return require("codecompanion.adapters").extend("copilot", {
-          schema = {
-            model = {
-              default = "grok-code-fast-1",
-            },
-          },
-        })
-      end
     },
   },
   config = function(_, opts)

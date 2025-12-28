@@ -4,14 +4,25 @@ local keymap = vim.keymap
 
 -- ============================================================================
 -- HELIX-STYLE KEYMAPS
--- https://docs.helix-editor.com/keymap.html
+-- Reference: https://docs.helix-editor.com/keymap.html
+-- ============================================================================
+
+-- NOTE: Multi-cursor/selection features (s, S, Alt-s, &, _, etc.) are handled
+-- by vim-visual-multi plugin. Start with <C-n> on a word, then use Helix keys.
+-- See: nvim/lua/kody/plugins/vim-visual-multi.lua
+
+-- ============================================================================
+-- GENERAL
 -- ============================================================================
 
 -- Clear search highlights (helix: Escape clears)
 keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear highlights" })
 
+-- Quick save (helix uses :w, but Ctrl-s is convenient)
+keymap.set({ "n", "i", "v" }, "<C-s>", "<cmd>w<CR><Esc>", { desc = "Save file" })
+
 -- ============================================================================
--- SPACE MODE (Leader) - Pickers and actions
+-- SPACE MODE (Leader) - Pickers and Actions
 -- ============================================================================
 
 -- File/buffer pickers (telescope handles these in telescope.lua)
@@ -30,17 +41,38 @@ keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear highlights" })
 -- LSP actions (defined in lsp.lua via LspAttach)
 -- <leader>r - rename symbol
 -- <leader>a - code action
--- <leader>k - hover (using K instead, more vim-like)
+-- <leader>k - hover docs
 
 -- Comments (helix: space+c)
 keymap.set("n", "<leader>c", "gcc", { remap = true, desc = "Toggle comment" })
 keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Toggle comment" })
+keymap.set("n", "<leader>C", "gbc", { remap = true, desc = "Toggle block comment" })
+keymap.set("v", "<leader>C", "gb", { remap = true, desc = "Toggle block comment" })
 
--- Clipboard (helix: space+y/p for system clipboard)
+-- Clipboard operations (helix: space+y/p for system clipboard)
 keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Yank to clipboard" })
 keymap.set("n", "<leader>Y", '"+Y', { desc = "Yank line to clipboard" })
 keymap.set({ "n", "v" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
 keymap.set({ "n", "v" }, "<leader>P", '"+P', { desc = "Paste before from clipboard" })
+keymap.set("n", "<leader>R", '"+P', { desc = "Replace from clipboard" })
+keymap.set("v", "<leader>R", '"+p', { desc = "Replace from clipboard" })
+
+-- Telescope picker (helix: space+')
+keymap.set("n", "<leader>'", "<cmd>Telescope resume<CR>", { desc = "Resume last picker" })
+
+-- Hover documentation (helix: space+k)
+keymap.set("n", "<leader>k", vim.lsp.buf.hover, { desc = "Hover docs" })
+
+-- Quit commands
+keymap.set("n", "<leader>qq", "<cmd>qa<CR>", { desc = "Quit all" })
+keymap.set("n", "<leader>qw", "<cmd>wqa<CR>", { desc = "Save and quit all" })
+keymap.set("n", "<leader>qQ", "<cmd>qa!<CR>", { desc = "Force quit all" })
+
+-- Toggle options
+keymap.set("n", "<leader>uw", "<cmd>set wrap!<CR>", { desc = "Toggle wrap" })
+keymap.set("n", "<leader>un", "<cmd>set relativenumber!<CR>", { desc = "Toggle relative number" })
+keymap.set("n", "<leader>us", "<cmd>set spell!<CR>", { desc = "Toggle spell check" })
+keymap.set("n", "<leader>ul", "<cmd>set list!<CR>", { desc = "Toggle listchars" })
 
 -- File explorer keymaps are defined in nvim-tree.lua plugin config
 
@@ -48,21 +80,21 @@ keymap.set({ "n", "v" }, "<leader>P", '"+P', { desc = "Paste before from clipboa
 -- WINDOW MODE (Ctrl-w or space+w)
 -- ============================================================================
 
--- Window navigation (Ctrl-w + hjkl, or just Ctrl-hjkl)
-keymap.set("n", "<C-h>", "<C-w>h", { desc = "Window left" })
-keymap.set("n", "<C-j>", "<C-w>j", { desc = "Window down" })
-keymap.set("n", "<C-k>", "<C-w>k", { desc = "Window up" })
-keymap.set("n", "<C-l>", "<C-w>l", { desc = "Window right" })
+-- Window navigation (Ctrl-hjkl)
+keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
+keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to window below" })
+keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to window above" })
+keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
 -- Window splits (helix: Ctrl-w + s/v)
 keymap.set("n", "<leader>wv", "<cmd>vsplit<CR>", { desc = "Vertical split" })
 keymap.set("n", "<leader>ws", "<cmd>split<CR>", { desc = "Horizontal split" })
 keymap.set("n", "<leader>wq", "<cmd>close<CR>", { desc = "Close window" })
-keymap.set("n", "<leader>wo", "<cmd>only<CR>", { desc = "Close others" })
-keymap.set("n", "<leader>ww", "<C-w>w", { desc = "Cycle window" })
-keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Equalize" })
+keymap.set("n", "<leader>wo", "<cmd>only<CR>", { desc = "Close other windows" })
+keymap.set("n", "<leader>ww", "<C-w>w", { desc = "Cycle to next window" })
+keymap.set("n", "<leader>w=", "<C-w>=", { desc = "Equalize window sizes" })
 
--- Window swapping (helix: Ctrl-w + HJKL)
+-- Window movement (helix: Ctrl-w + HJKL)
 keymap.set("n", "<leader>wH", "<C-w>H", { desc = "Move window left" })
 keymap.set("n", "<leader>wJ", "<C-w>J", { desc = "Move window down" })
 keymap.set("n", "<leader>wK", "<C-w>K", { desc = "Move window up" })
@@ -72,7 +104,7 @@ keymap.set("n", "<leader>wL", "<C-w>L", { desc = "Move window right" })
 -- GOTO MODE (g prefix) - Navigation
 -- ============================================================================
 
--- Go to file start/end (helix: gg/ge)
+-- File navigation (helix: gg/ge/gh/gl/gs)
 keymap.set("n", "ge", "G", { desc = "Go to last line" })
 keymap.set("n", "gh", "^", { desc = "Go to line start" })
 keymap.set("n", "gl", "$", { desc = "Go to line end" })
@@ -82,15 +114,15 @@ keymap.set("n", "gs", "^", { desc = "Go to first non-blank" })
 keymap.set("n", "gn", "<cmd>bnext<CR>", { desc = "Next buffer" })
 keymap.set("n", "gp", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 
--- Additional goto mode (helix style)
-keymap.set("n", "ga", "<C-^>", { desc = "Last accessed file" })
+-- Additional goto commands
+keymap.set("n", "ga", "<C-^>", { desc = "Go to alternate file" })
 keymap.set("n", "gt", "H", { desc = "Go to window top" })
 keymap.set("n", "gm", "M", { desc = "Go to window middle" })
 keymap.set("n", "gb", "L", { desc = "Go to window bottom" })
-keymap.set("n", "g.", "`.", { desc = "Go to last modification" })
+keymap.set("n", "g.", "`.", { desc = "Go to last change" })
 
--- Visual and operator-pending modes: use as motion
--- This allows natural Vim behavior: vgl, dgl, cgl, etc.
+-- Visual and operator-pending mode motions
+-- Allows natural Vim behavior: vgl, dgl, cgl, etc.
 keymap.set({ "x", "o" }, "ge", "G", { desc = "To last line" })
 keymap.set({ "x", "o" }, "gh", "0", { desc = "To line start" })
 keymap.set({ "x", "o" }, "gl", "$", { desc = "To line end" })
@@ -99,7 +131,7 @@ keymap.set({ "x", "o" }, "gt", "H", { desc = "To window top" })
 keymap.set({ "x", "o" }, "gm", "M", { desc = "To window middle" })
 keymap.set({ "x", "o" }, "gb", "L", { desc = "To window bottom" })
 
--- LSP goto (defined in lsp.lua)
+-- LSP goto commands (defined in lsp.lua)
 -- gd - go to definition
 -- gy - go to type definition
 -- gr - go to references
@@ -107,221 +139,160 @@ keymap.set({ "x", "o" }, "gb", "L", { desc = "To window bottom" })
 -- gD - go to declaration
 
 -- ============================================================================
--- UNIMPAIRED (]/[ prefix) - Next/prev navigation
+-- UNIMPAIRED (]/[ prefix) - Next/Previous Navigation
 -- ============================================================================
 
 -- Diagnostics (helix: ]d/[d for next/prev, ]D/[D for last/first)
 keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Next diagnostic" })
-keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Prev diagnostic" })
+keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Previous diagnostic" })
 keymap.set("n", "]D", function()
   local diagnostics = vim.diagnostic.get(0)
   if #diagnostics > 0 then
     vim.diagnostic.goto_next({ count = #diagnostics, wrap = false })
   end
-end, { desc = "Last diagnostic in document" })
+end, { desc = "Last diagnostic" })
 keymap.set("n", "[D", function()
   local diagnostics = vim.diagnostic.get(0)
   if #diagnostics > 0 then
     vim.diagnostic.goto_prev({ count = #diagnostics, wrap = false })
   end
-end, { desc = "First diagnostic in document" })
+end, { desc = "First diagnostic" })
 
--- Buffers
+-- Buffer navigation
 keymap.set("n", "]b", "<cmd>bnext<CR>", { desc = "Next buffer" })
-keymap.set("n", "[b", "<cmd>bprevious<CR>", { desc = "Prev buffer" })
+keymap.set("n", "[b", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 
--- Quickfix
-keymap.set("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix" })
-keymap.set("n", "[q", "<cmd>cprev<CR>", { desc = "Prev quickfix" })
-
--- Add blank lines (helix: ]space/[space)
-keymap.set("n", "]<Space>", "o<Esc>", { desc = "Add line below" })
-keymap.set("n", "[<Space>", "O<Esc>", { desc = "Add line above" })
-
--- Git hunks handled in gitsigns.lua (]g/[g)
+-- Quickfix navigation
+keymap.set("n", "]q", "<cmd>cnext<CR>", { desc = "Next quickfix item" })
+keymap.set("n", "[q", "<cmd>cprev<CR>", { desc = "Previous quickfix item" })
 
 -- Paragraph navigation (helix: ]p/[p)
 keymap.set("n", "]p", "}", { desc = "Next paragraph" })
-keymap.set("n", "[p", "{", { desc = "Prev paragraph" })
+keymap.set("n", "[p", "{", { desc = "Previous paragraph" })
+
+-- Add blank lines (helix: ]space/[space)
+keymap.set("n", "]<Space>", "o<Esc>", { desc = "Add blank line below" })
+keymap.set("n", "[<Space>", "O<Esc>", { desc = "Add blank line above" })
+
+-- Git hunks handled in gitsigns.lua (]g/[g)
 
 -- ============================================================================
--- MATCH MODE (m prefix) - Brackets and surround
+-- MATCH MODE (m prefix) - Brackets and Surround
 -- ============================================================================
 
 -- Match brackets (helix: mm)
-keymap.set("n", "mm", "%", { desc = "Match brackets" })
-keymap.set("v", "mm", "%", { desc = "Match brackets" })
+-- Note: We use mm for matching because % is remapped to select-all (Helix style)
+-- Matchit is disabled via vim.g.loaded_matchit = 1 in init.lua
+keymap.set("n", "mm", "%", { desc = "Jump to matching bracket" })
+keymap.set("v", "mm", "%", { desc = "Jump to matching bracket" })
+
+-- Text objects (helix: ma/mi for around/inner)
+-- Usage: miw = select inner word, maf = select around function
+keymap.set("n", "mi", "vi", { remap = true, desc = "Select inner textobject" })
+keymap.set("n", "ma", "va", { remap = true, desc = "Select around textobject" })
 
 -- Surround operations (helix: ms/mr/md)
 -- Handled by mini.surround plugin in mini-surround.lua
 
--- Text objects in match mode (helix: ma/mi for around/inner)
--- These work with the built-in text objects
-keymap.set({ "o", "x" }, "ma", "a", { desc = "Around textobject" })
-keymap.set({ "o", "x" }, "mi", "i", { desc = "Inner textobject" })
-
 -- ============================================================================
--- SELECTION / EDITING
+-- SELECTION AND EDITING
 -- ============================================================================
-
--- Extend line (helix: x selects line, X extends to line bounds)
-keymap.set("n", "x", "V", { desc = "Select line" })
-keymap.set("v", "x", function()
-  -- In visual mode, extend by full lines
-  vim.cmd("normal! j")
-  -- Ensure we're in linewise visual mode
-  if vim.fn.mode() ~= "V" then
-    vim.cmd("normal! V")
-  end
-end, { desc = "Extend line down" })
-keymap.set("n", "X", "V$", { desc = "Select to line end" })
-keymap.set("v", "X", "$", { desc = "Extend to line end" })
 
 -- Select all (helix: %)
-keymap.set("n", "%", "ggVG", { desc = "Select all" })
+-- Note: Requires vim.g.loaded_matchit = 1 in init.lua to prevent matchit override
+keymap.set("n", "%", "<cmd>normal! ggVG<CR>", { desc = "Select entire buffer" })
 
--- NOTE: ; and , are used for repeating motions (treesitter-textobjects)
--- Helix uses ; to collapse and , to keep selection, but repeat is more useful in vim
--- Use <Esc> to collapse selection instead
--- Alt-. also repeats last motion for Helix compatibility
-keymap.set({ "n", "x", "o" }, "<A-.>", ";", { remap = true, desc = "Repeat last motion" })
+-- Line selection (helix: x/X)
+keymap.set("n", "x", "V", { desc = "Select line" })
+keymap.set("v", "x", "j", { desc = "Extend selection down" })
+keymap.set("n", "X", "V", { desc = "Select line (linewise)" })
+keymap.set("v", "X", "V", { desc = "Convert to linewise selection" })
+keymap.set("v", "<A-x>", "V", { desc = "Shrink to line bounds" })
 
--- Copy selection to next/prev line (helix: C/Alt-C)
--- Note: True multi-cursor requires a plugin, this is a simple version
-keymap.set("n", "C", "yyp", { desc = "Copy line down" })
-keymap.set("v", "C", "yPgv", { desc = "Copy selection" })
-keymap.set("n", "<A-C>", "yyP", { desc = "Copy line up" })
+-- Delete and change (helix style - no yank by default)
+keymap.set("n", "d", '"_x', { desc = "Delete char under cursor" })
+keymap.set("n", "c", '"_xi', { desc = "Change char under cursor" })
+keymap.set("v", "d", '"_d', { desc = "Delete selection" })
+keymap.set("v", "c", '"_c', { desc = "Change selection" })
 
--- Better indenting (stay in visual mode)
+-- Delete/change with motions (vim style - use Alt modifier)
+keymap.set("n", "<A-d>", '"_d', { desc = "Delete motion (no yank)" })
+keymap.set("n", "<A-c>", '"_c', { desc = "Change motion (no yank)" })
+
+-- Replace operations (helix: r/R)
+keymap.set("v", "r", function()
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('"_c', true, false, true), "n", false)
+  local char = vim.fn.getcharstr()
+  if char:match("%w") or char:match("%p") or char == " " then
+    local count = vim.fn.col("'>") - vim.fn.col("'<") + 1
+    vim.api.nvim_put({ string.rep(char, count) }, "c", true, true)
+  end
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+end, { desc = "Replace selection with char" })
+keymap.set("v", "R", '"_d"0P', { desc = "Replace with yanked text" })
+keymap.set("n", "R", 'vl"_d"0P', { desc = "Replace char with yanked" })
+
+-- Case transformation (helix: ~ toggle, ` lowercase, Alt-` uppercase)
+keymap.set("n", "`", "vul", { desc = "Lowercase char" })
+keymap.set("v", "`", "u", { desc = "Lowercase selection" })
+keymap.set("n", "<A-`>", "vUl", { desc = "Uppercase char" })
+keymap.set("v", "<A-`>", "U", { desc = "Uppercase selection" })
+
+-- Paste without yanking (helix-style)
+keymap.set("v", "p", '"_dP', { desc = "Paste over selection" })
+
+-- Copy line (helix: C/Alt-C)
+keymap.set("n", "C", "yyp", { desc = "Duplicate line down" })
+keymap.set("v", "C", "yPgv", { desc = "Duplicate selection" })
+keymap.set("n", "<A-C>", "yyP", { desc = "Duplicate line up" })
+
+-- Join lines (helix: J)
+keymap.set("n", "J", "mzJ`z", { desc = "Join lines" })
+
+-- Indentation (stay in visual mode)
 keymap.set("v", "<", "<gv", { desc = "Indent left" })
 keymap.set("v", ">", ">gv", { desc = "Indent right" })
 
--- Move lines (using Ctrl-Shift to avoid conflict with zellij nav)
+-- Move lines (using Ctrl-Shift to avoid conflict with terminal navigation)
 keymap.set("n", "<C-S-j>", "<cmd>m .+1<CR>==", { desc = "Move line down" })
 keymap.set("n", "<C-S-k>", "<cmd>m .-2<CR>==", { desc = "Move line up" })
 keymap.set("v", "<C-S-j>", ":m '>+1<CR>gv=gv", { desc = "Move selection down" })
 keymap.set("v", "<C-S-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
--- Join lines (helix: J, keep cursor position)
-keymap.set("n", "J", "mzJ`z", { desc = "Join lines" })
-
--- Paste over selection without yanking (helix-style)
-keymap.set("v", "p", '"_dP', { desc = "Paste (no yank)" })
-
--- Delete/Change in Helix style: operate on selections without yanking
--- In Helix, d/c work on the current selection and don't pollute registers
-keymap.set("v", "d", '"_d', { desc = "Delete selection (no yank)" })
-keymap.set("v", "c", '"_c', { desc = "Change selection (no yank)" })
-
--- Keep Alt-d/Alt-c as explicit "delete without yank" in normal mode
-keymap.set("n", "<A-d>", '"_d', { desc = "Delete (no yank)" })
-keymap.set("n", "<A-c>", '"_c', { desc = "Change (no yank)" })
-
--- Replace with character (helix: r)
--- In visual mode, replace all selected characters with a single character
-keymap.set("v", "r", function()
-  vim.cmd('normal! "_c')
-  local char = vim.fn.getcharstr()
-  if char:match("%w") or char:match("%p") or char == " " then
-    local count = vim.fn.col("'>") - vim.fn.col("'<") + 1
-    vim.api.nvim_put({string.rep(char, count)}, "c", true, true)
-  end
-  vim.cmd("stopinsert")
-end, { desc = "Replace selection with char" })
-
--- Replace with yanked text (helix: R)
--- Delete selection to black hole and paste from yank register
-keymap.set("v", "R", '"_d"0P', { desc = "Replace with yanked" })
-keymap.set("n", "R", function()
-  -- In normal mode, replace character under cursor with yanked text
-  vim.cmd('normal! "_cl')
-  vim.cmd('normal! "0P')
-end, { desc = "Replace char with yanked" })
-
--- Case switching (helix: ~ toggle, ` lowercase, Alt-` uppercase)
--- Helix behavior: operates on selection in visual mode, single char in normal mode
-keymap.set("n", "`", function()
-  local pos = vim.api.nvim_win_get_cursor(0)
-  vim.cmd("normal! vu")
-  vim.api.nvim_win_set_cursor(0, pos)
-end, { desc = "Lowercase char" })
-keymap.set("v", "`", "u", { desc = "Lowercase selection" })
-keymap.set("n", "<A-`>", function()
-  local pos = vim.api.nvim_win_get_cursor(0)
-  vim.cmd("normal! vU")
-  vim.api.nvim_win_set_cursor(0, pos)
-end, { desc = "Uppercase char" })
-keymap.set("v", "<A-`>", "U", { desc = "Uppercase selection" })
--- ~ already works as switch_case in vim by default
+-- Repeat last motion (helix: Alt-.)
+keymap.set({ "n", "x", "o" }, "<A-.>", ";", { remap = true, desc = "Repeat last motion" })
 
 -- Undo/Redo (helix: u/U)
 keymap.set("n", "U", "<C-r>", { desc = "Redo" })
 
--- Macros (helix: Q record, q replay) - swapped from vim default
+-- Macros (helix: Q record, q replay - swapped from vim default)
 keymap.set("n", "Q", "q", { desc = "Record macro" })
-keymap.set("n", "q", "@q", { desc = "Replay macro" })
+keymap.set("n", "q", "@q", { desc = "Replay macro q" })
 
--- Increment/Decrement (helix: Ctrl-a/Ctrl-x) - already vim default
--- Just documenting they exist
+-- Increment/Decrement (helix: Ctrl-a/Ctrl-x - vim default)
 
 -- ============================================================================
--- VIEW MODE (z prefix) - Scrolling
+-- VIEW MODE (z prefix) - Scrolling and Centering
 -- ============================================================================
 
--- Helix view mode uses zc/zt/zb/zm for center/top/bottom/middle
-keymap.set("n", "zc", "zz", { desc = "Center cursor" })
-keymap.set("n", "zz", "zz", { desc = "Center cursor" })
-keymap.set("n", "zt", "zt", { desc = "Cursor to top" })
-keymap.set("n", "zb", "zb", { desc = "Cursor to bottom" })
-keymap.set("n", "zm", "zz", { desc = "Center cursor (middle)" })
+-- Center cursor (helix: zc/zm)
+keymap.set("n", "zc", "zz", { desc = "Center cursor line" })
+keymap.set("n", "zz", "zz", { desc = "Center cursor line" })
+keymap.set("n", "zm", "zz", { desc = "Center cursor line" })
+keymap.set("n", "zt", "zt", { desc = "Cursor to window top" })
+keymap.set("n", "zb", "zb", { desc = "Cursor to window bottom" })
 
 -- Scroll view (helix: zj/zk)
-keymap.set("n", "zj", "<C-e>", { desc = "Scroll down" })
-keymap.set("n", "zk", "<C-y>", { desc = "Scroll up" })
+keymap.set("n", "zj", "<C-e>", { desc = "Scroll view down" })
+keymap.set("n", "zk", "<C-y>", { desc = "Scroll view up" })
 
--- Half-page scroll (centered)
-keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll down" })
-keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll up" })
+-- Half-page scroll (keep centered)
+keymap.set("n", "<C-d>", "<C-d>zz", { desc = "Scroll half-page down" })
+keymap.set("n", "<C-u>", "<C-u>zz", { desc = "Scroll half-page up" })
 
 -- Keep centered when searching
-keymap.set("n", "n", "nzzzv", { desc = "Next match" })
-keymap.set("n", "N", "Nzzzv", { desc = "Prev match" })
-
--- ============================================================================
--- MISC
--- ============================================================================
-
--- Quick save (helix uses :w, but Ctrl-s is convenient)
-keymap.set({ "n", "i", "v" }, "<C-s>", "<cmd>w<CR><Esc>", { desc = "Save" })
-
--- Quit
-keymap.set("n", "<leader>qq", "<cmd>qa<CR>", { desc = "Quit all" })
-keymap.set("n", "<leader>qw", "<cmd>wqa<CR>", { desc = "Save and quit all" })
-keymap.set("n", "<leader>qQ", "<cmd>qa!<CR>", { desc = "Force quit all" })
-
--- Toggle options (custom, not helix)
-keymap.set("n", "<leader>uw", "<cmd>set wrap!<CR>", { desc = "Toggle wrap" })
-keymap.set("n", "<leader>un", "<cmd>set relativenumber!<CR>", { desc = "Toggle relative number" })
-keymap.set("n", "<leader>us", "<cmd>set spell!<CR>", { desc = "Toggle spell" })
-keymap.set("n", "<leader>ul", "<cmd>set list!<CR>", { desc = "Toggle listchars" })
-
--- ============================================================================
--- ADDITIONAL SPACE MODE (helix style)
--- ============================================================================
-
--- Hover (helix: space+k) - K works in normal mode, this is alternative
-keymap.set("n", "<leader>k", vim.lsp.buf.hover, { desc = "Hover docs" })
-
--- Last picker (helix: space+') - resume telescope
-keymap.set("n", "<leader>'", "<cmd>Telescope resume<CR>", { desc = "Last picker" })
-
--- Block comment toggle (helix: space+C)
-keymap.set("n", "<leader>C", "gbc", { remap = true, desc = "Toggle block comment" })
-keymap.set("v", "<leader>C", "gb", { remap = true, desc = "Toggle block comment" })
-
--- Replace from clipboard (helix: space+R)
-keymap.set("n", "<leader>R", '"+P', { desc = "Replace from clipboard" })
-keymap.set("v", "<leader>R", '"+p', { desc = "Replace from clipboard" })
+keymap.set("n", "n", "nzzzv", { desc = "Next search match" })
+keymap.set("n", "N", "Nzzzv", { desc = "Previous search match" })
 
 -- ============================================================================
 -- INSERT MODE (helix style)
@@ -335,17 +306,17 @@ keymap.set("i", "<A-BS>", "<C-w>", { desc = "Delete word backward" })
 keymap.set("i", "<A-d>", "<C-o>dw", { desc = "Delete word forward" })
 
 -- Kill to line start (helix: Ctrl-u)
-keymap.set("i", "<C-u>", "<C-u>", { desc = "Kill to line start" })
+keymap.set("i", "<C-u>", "<C-u>", { desc = "Delete to line start" })
 
 -- Kill to line end (helix: Ctrl-k)
-keymap.set("i", "<C-k>", "<C-o>D", { desc = "Kill to line end" })
+keymap.set("i", "<C-k>", "<C-o>D", { desc = "Delete to line end" })
 
 -- ============================================================================
 -- SHELL COMMANDS (helix style)
 -- ============================================================================
 
 -- Shell pipe (helix: |)
-keymap.set("v", "|", ":!", { desc = "Shell pipe" })
+keymap.set("v", "|", ":!", { desc = "Pipe selection through shell" })
 
 -- Shell insert output (helix: !)
-keymap.set("n", "!", ":r!", { desc = "Insert shell output" })
+keymap.set("n", "!", ":r!", { desc = "Insert shell command output" })

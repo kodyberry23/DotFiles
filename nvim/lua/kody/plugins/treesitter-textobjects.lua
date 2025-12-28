@@ -14,37 +14,39 @@ return {
           enable = true,
           lookahead = true,
           keymaps = {
+            -- Helix-aligned text objects
             ["af"] = "@function.outer",
             ["if"] = "@function.inner",
-            ["ac"] = "@class.outer",
-            ["ic"] = "@class.inner",
-            ["aa"] = "@parameter.outer",
+            ["at"] = "@class.outer",      -- helix: t = type/class
+            ["it"] = "@class.inner",
+            ["aa"] = "@parameter.outer",  -- helix: a = argument
             ["ia"] = "@parameter.inner",
-            ["ab"] = "@block.outer",
+            ["ac"] = "@comment.outer",    -- helix: c = comment
+            ["ic"] = "@comment.inner",
+            ["ab"] = "@block.outer",      -- bonus: b = block
             ["ib"] = "@block.inner",
-            ["aC"] = "@comment.outer",
-            ["iC"] = "@comment.inner",
           },
         },
         -- Helix-style unimpaired navigation
         move = {
           enable = true,
           set_jumps = true,
+          -- Helix-style unimpaired navigation
           goto_next_start = {
-            ["]f"] = "@function.outer",
-            ["]t"] = "@class.outer",
-            ["]a"] = "@parameter.inner",
-            ["]c"] = "@comment.outer",
+            ["]f"] = "@function.outer",   -- helix: ]f = next function
+            ["]t"] = "@class.outer",      -- helix: ]t = next type/class
+            ["]a"] = "@parameter.inner",  -- helix: ]a = next argument
+            ["]c"] = "@comment.outer",    -- helix: ]c = next comment
           },
           goto_next_end = {
             ["]F"] = "@function.outer",
             ["]T"] = "@class.outer",
           },
           goto_previous_start = {
-            ["[f"] = "@function.outer",
-            ["[t"] = "@class.outer",
-            ["[a"] = "@parameter.inner",
-            ["[c"] = "@comment.outer",
+            ["[f"] = "@function.outer",   -- helix: [f = prev function
+            ["[t"] = "@class.outer",      -- helix: [t = prev type/class
+            ["[a"] = "@parameter.inner",  -- helix: [a = prev argument
+            ["[c"] = "@comment.outer",    -- helix: [c = prev comment
           },
           goto_previous_end = {
             ["[F"] = "@function.outer",
@@ -53,13 +55,14 @@ return {
         },
         -- Swap parameters
         swap = {
-          enable = true,
-          swap_next = {
-            ["<A-n>"] = "@parameter.inner",
-          },
-          swap_previous = {
-            ["<A-p>"] = "@parameter.inner",
-          },
+          enable = false, -- Disabled: conflicts with vim-visual-multi tree-sitter navigation
+          -- Use vim-visual-multi's <A-n>/<A-p> for sibling navigation instead
+          -- swap_next = {
+          --   ["<A-n>"] = "@parameter.inner",
+          -- },
+          -- swap_previous = {
+          --   ["<A-p>"] = "@parameter.inner",
+          -- },
         },
       },
     })
