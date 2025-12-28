@@ -6,13 +6,31 @@ return {
     "nvim-tree/nvim-web-devicons",
   },
   keys = {
-    { "<leader>ee", "<cmd>NvimTreeToggle<CR>", desc = "Toggle explorer" },
+    { "<leader>ee", "<cmd>NvimTreeToggle<CR>",   desc = "Toggle explorer" },
     { "<leader>ef", "<cmd>NvimTreeFindFile<CR>", desc = "Find in explorer" },
     { "<leader>ec", "<cmd>NvimTreeCollapse<CR>", desc = "Collapse explorer" },
-    { "<leader>er", "<cmd>NvimTreeRefresh<CR>", desc = "Refresh explorer" },
+    { "<leader>er", "<cmd>NvimTreeRefresh<CR>",  desc = "Refresh explorer" },
   },
   config = function()
     require("nvim-tree").setup({
+      -- Show gitignored files
+      git = {
+        ignore = false,
+      },
+      -- Enable real-time filesystem watching
+      filesystem_watchers = {
+        enable = true,
+        debounce_delay = 50,
+        ignore_dirs = { "node_modules", ".git", "dist", "build" },
+      },
+      -- Auto reload options
+      auto_reload_on_write = true,
+      reload_on_bufenter = true,
+      -- Update focused file automatically
+      update_focused_file = {
+        enable = true,
+        update_root = false,
+      },
       renderer = {
         highlight_git = true,
         icons = {
