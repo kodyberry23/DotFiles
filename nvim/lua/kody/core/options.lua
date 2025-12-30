@@ -57,4 +57,4 @@ opt.ttimeoutlen = 10 -- Wait 10ms for key codes (faster Esc)
 -- Encoding
 opt.iskeyword:append("-")
 
-opt.guicursor = "n-v-c-i:block"
+opt.guicursor = "n-v-c-sm:block,i-ci-ve:block-blinkwait700-blinkoff400-blinkon250,r-cr-o:hor20"

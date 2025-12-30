@@ -33,8 +33,9 @@ keymap.set({ "n", "i", "v" }, "<C-s>", "<cmd>w<CR><Esc>", { desc = "Save file" }
 -- <leader>g - changed files (git status)
 -- <leader>s - document symbols
 -- <leader>S - workspace symbols
--- <leader>d - document diagnostics
--- <leader>D - workspace diagnostics
+-- <leader>xb - buffer diagnostics
+-- <leader>xw - workspace diagnostics
+-- <leader>xl - line diagnostics
 -- <leader>/ - global search
 -- <leader>? - command palette
 
@@ -43,11 +44,7 @@ keymap.set({ "n", "i", "v" }, "<C-s>", "<cmd>w<CR><Esc>", { desc = "Save file" }
 -- <leader>a - code action
 -- <leader>k - hover docs
 
--- Comments (helix: space+c)
-keymap.set("n", "<leader>c", "gcc", { remap = true, desc = "Toggle comment" })
-keymap.set("v", "<leader>c", "gc", { remap = true, desc = "Toggle comment" })
-keymap.set("n", "<leader>C", "gbc", { remap = true, desc = "Toggle block comment" })
-keymap.set("v", "<leader>C", "gb", { remap = true, desc = "Toggle block comment" })
+-- Comments: handled by Comment.nvim (gcc = line, gbc = block toggle, gc/gb = operators)
 
 -- Clipboard operations (helix: space+y/p for system clipboard)
 keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Yank to clipboard" })
@@ -118,7 +115,7 @@ keymap.set("n", "gp", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 keymap.set("n", "ga", "<C-^>", { desc = "Go to alternate file" })
 keymap.set("n", "gt", "H", { desc = "Go to window top" })
 keymap.set("n", "gm", "M", { desc = "Go to window middle" })
-keymap.set("n", "gb", "L", { desc = "Go to window bottom" })
+-- gb removed - now used for block comments in Comment.nvim
 keymap.set("n", "g.", "`.", { desc = "Go to last change" })
 
 -- Visual and operator-pending mode motions
@@ -129,7 +126,7 @@ keymap.set({ "x", "o" }, "gl", "$", { desc = "To line end" })
 keymap.set({ "x", "o" }, "gs", "^", { desc = "To first non-blank" })
 keymap.set({ "x", "o" }, "gt", "H", { desc = "To window top" })
 keymap.set({ "x", "o" }, "gm", "M", { desc = "To window middle" })
-keymap.set({ "x", "o" }, "gb", "L", { desc = "To window bottom" })
+-- gb removed - now used for block comments in Comment.nvim
 
 -- LSP goto commands (defined in lsp.lua)
 -- gd - go to definition
@@ -241,10 +238,11 @@ keymap.set("v", "<A-`>", "U", { desc = "Uppercase selection" })
 -- Paste without yanking (helix-style)
 keymap.set("v", "p", '"_dP', { desc = "Paste over selection" })
 
--- Copy line (helix: C/Alt-C)
-keymap.set("n", "C", "yyp", { desc = "Duplicate line down" })
-keymap.set("v", "C", "yPgv", { desc = "Duplicate selection" })
-keymap.set("n", "<A-C>", "yyP", { desc = "Duplicate line up" })
+-- Duplicate selection (Alt+Shift+j/k in visual mode only)
+-- Note: Normal mode removed due to terminal conflicts with <A-j>/<A-k> (Zellij navigation)
+-- To duplicate a line: select it first with 'x', then use <A-S-j> or <A-S-k>
+keymap.set("x", "<A-S-j>", ":<C-u>'<,'>t'><CR>gv", { desc = "Duplicate selection down", silent = true })
+keymap.set("x", "<A-S-k>", ":<C-u>'<,'>t'<-1<CR>gv", { desc = "Duplicate selection up", silent = true })
 
 -- Join lines (helix: J)
 keymap.set("n", "J", "mzJ`z", { desc = "Join lines" })

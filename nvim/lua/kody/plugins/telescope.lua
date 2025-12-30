@@ -16,8 +16,8 @@ return {
     { "<leader>S", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace symbols" },
     { "<leader>/", "<cmd>Telescope live_grep<cr>", desc = "Global search" },
     { "<leader>?", "<cmd>Telescope commands<cr>", desc = "Command palette" },
-    { "<leader>d", "<cmd>Telescope diagnostics bufnr=0<cr>", desc = "Document diagnostics" },
-    { "<leader>D", "<cmd>Telescope diagnostics<cr>", desc = "Workspace diagnostics" },
+    { "<leader>dd", "<cmd>Telescope diagnostics bufnr=0<cr>", desc = "Document diagnostics" },
+    { "<leader>dw", "<cmd>Telescope diagnostics<cr>", desc = "Workspace diagnostics" },
   },
   opts = {
     defaults = {

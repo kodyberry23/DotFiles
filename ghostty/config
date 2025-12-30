@@ -24,7 +24,7 @@ auto-update = check
 auto-update-channel = stable
 
 # extras
-shell-integration-features = no-cursor 
+shell-integration-features = cursor 
 copy-on-select = clipboard 
 # cmd or alt c copy (not vim yank)
 
@@ -64,7 +64,18 @@ keybind = super+b>j=goto_split:bottom
 keybind = super+b>k=goto_split:top
 keybind = super+b>l=goto_split:right
 
+# disable default ghostty keybinds
+keybind = cmd+d=unbind
+keybind = cmd+shift+d=unbind
+keybind = cmd+[=unbind
+keybind = cmd+]=unbind
+keybind = cmd+opt+up=unbind
+keybind = cmd+opt+down=unbind
+keybind = cmd+opt+left=unbind
+keybind = cmd+opt+right=unbind
+
 #Shaders
+custom-shader = shaders/cursor_warp.glsl
 # custom-shader = shaders/bettercrt.glsl
 # custom-shader = shaders/retro-terminal.glsl
 

@@ -14,8 +14,6 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `d` | `"_x` | Delete char under cursor (no yank) | keymaps.lua |
 | `c` | `"_xi` | Change char under cursor (no yank) | keymaps.lua |
 | `J` | `mzJ`z` | Join lines (keep cursor position) | keymaps.lua |
-| `C` | `yyp` | Duplicate line down | keymaps.lua |
-| `<A-C>` | `yyP` | Duplicate line up | keymaps.lua |
 | `R` | `vl"_d"0P` | Replace char with yanked text | keymaps.lua |
 | `U` | `<C-r>` | Redo | keymaps.lua |
 | `Q` | `q` | Record macro | keymaps.lua |
@@ -115,8 +113,10 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `<leader>S` | `Telescope lsp_workspace_symbols` | Workspace symbols | telescope.lua |
 | `<leader>/` | `Telescope live_grep` | Global search | telescope.lua |
 | `<leader>?` | `Telescope commands` | Command palette | telescope.lua |
-| `<leader>d` | `Telescope diagnostics bufnr=0` | Document diagnostics | telescope.lua / lspconfig.lua |
-| `<leader>D` | `Telescope diagnostics` | Workspace diagnostics | telescope.lua / lspconfig.lua |
+| `<leader>dd` | `Telescope diagnostics bufnr=0` | Document diagnostics | telescope.lua |
+| `<leader>dw` | `Telescope diagnostics` | Workspace diagnostics | telescope.lua / lspconfig.lua |
+| `<leader>dl` | `vim.diagnostic.open_float` | Line diagnostics | lspconfig.lua |
+| `<leader>db` | `Telescope diagnostics bufnr=0` | Buffer diagnostics | lspconfig.lua |
 | `<leader>'` | `Telescope resume` | Resume last picker | keymaps.lua |
 
 ### LSP Actions
@@ -132,8 +132,15 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 
 | Key | Action | Description | Source |
 |-----|--------|-------------|--------|
-| `<leader>c` | `gcc` (remap) | Toggle comment | keymaps.lua |
-| `<leader>C` | `gbc` (remap) | Toggle block comment | keymaps.lua |
+| `gcc` | Toggle line comment | Comment/uncomment current line | comment.nvim |
+| `gbc` | Toggle block comment | Block comment current line | comment.nvim |
+| `gc` + motion | Line comment operator | Line comment with motion (e.g., `gcap`, `gcip`) | comment.nvim |
+| `gb` + motion | Block comment operator | Block comment with motion (e.g., `gbip`, `gb2j`) | comment.nvim |
+| `gc` (visual) | Toggle line comment | Line comment selection | comment.nvim |
+| `gb` (visual) | Toggle block comment | Block comment selection | comment.nvim |
+| `gcO` | Add comment above | Add comment on line above | comment.nvim |
+| `gco` | Add comment below | Add comment on line below | comment.nvim |
+| `gcA` | Add comment at EOL | Add comment at end of line | comment.nvim |
 
 ### Clipboard
 
@@ -144,6 +151,17 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `<leader>p` | `"+p` | Paste from clipboard | keymaps.lua |
 | `<leader>P` | `"+P` | Paste before from clipboard | keymaps.lua |
 | `<leader>R` | `"+P` | Replace from clipboard | keymaps.lua |
+
+### Duplication
+
+**Visual mode only** - Select what you want to duplicate first (use `x` for line selection).
+
+| Key | Action | Description | Source |
+|-----|--------|-------------|--------|
+| `<A-S-j>` (visual) | `:<C-u>'<,'>t'><CR>gv` | Duplicate selection down | keymaps.lua |
+| `<A-S-k>` (visual) | `:<C-u>'<,'>t'<-1<CR>gv` | Duplicate selection up | keymaps.lua |
+
+**Example workflow:** Press `x` to select current line, then `<A-S-j>` to duplicate it below.
 
 ### File Explorer
 
@@ -209,7 +227,6 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `ga` | `<C-^>` | Go to alternate file | keymaps.lua |
 | `gt` | `H` | Go to window top | keymaps.lua |
 | `gm` | `M` | Go to window middle | keymaps.lua |
-| `gb` | `L` | Go to window bottom | keymaps.lua |
 | `g.` | `` `. `` | Go to last change | keymaps.lua |
 | `gd` | `Telescope lsp_definitions` | Go to definition | lspconfig.lua |
 | `gD` | `vim.lsp.buf.declaration` | Go to declaration | lspconfig.lua |
@@ -227,7 +244,6 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `gs` | `^` | To first non-blank | keymaps.lua |
 | `gt` | `H` | To window top | keymaps.lua |
 | `gm` | `M` | To window middle | keymaps.lua |
-| `gb` | `L` | To window bottom | keymaps.lua |
 
 ---
 
@@ -351,8 +367,9 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `d` | `"_d` | Delete selection (no yank) | keymaps.lua |
 | `c` | `"_c` | Change selection (no yank) | keymaps.lua |
 | `r` | (function) | Replace selection with char | keymaps.lua |
-| `C` | `yPgv` | Duplicate selection | keymaps.lua |
 | `R` | `"_d"0P` | Replace selection with yanked | keymaps.lua |
+| `<A-S-j>` | `:<C-u>'<,'>t'><CR>gv` | Duplicate selection down | keymaps.lua |
+| `<A-S-k>` | `:<C-u>'<,'>t'<-1<CR>gv` | Duplicate selection up | keymaps.lua |
 | `` ` `` | `u` | Lowercase selection | keymaps.lua |
 | `` <A-`> `` | `U` | Uppercase selection | keymaps.lua |
 | `\|` | `:!` | Pipe selection through shell | keymaps.lua |
@@ -362,8 +379,7 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `<C-S-j>` | `:m '>+1<CR>gv=gv` | Move selection down | keymaps.lua |
 | `<C-S-k>` | `:m '<-2<CR>gv=gv` | Move selection up | keymaps.lua |
 | `p` | `"_dP` | Paste over selection (no yank) | keymaps.lua |
-| `<leader>c` | `gc` (remap) | Toggle comment | keymaps.lua |
-| `<leader>C` | `gb` (remap) | Toggle block comment | keymaps.lua |
+| `gc` | Toggle comment | Comment/uncomment selection | mini-comment |
 | `<leader>y` | `"+y` | Yank to clipboard | keymaps.lua |
 | `<leader>p` | `"+p` | Paste from clipboard | keymaps.lua |
 | `<leader>P` | `"+P` | Paste before from clipboard | keymaps.lua |
@@ -397,7 +413,6 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 |-----|--------|-------------|--------|
 | `K` | `vim.lsp.buf.hover` | Show hover docs | lspconfig.lua |
 | `<C-k>` | `vim.lsp.buf.signature_help` | Signature help | lspconfig.lua |
-| `gl` | `vim.diagnostic.open_float` | Show line diagnostics | lspconfig.lua |
 
 ---
 
@@ -472,7 +487,7 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 - `U` - Redo (Helix style)
 - `Q` - Record macro (swapped with q)
 - `q` - Replay macro (swapped with Q)
-- `C` - Duplicate line down
+- `<A-S-j>` / `<A-S-k>` - Duplicate line down/up
 - `R` - Replace char with yanked text
 - `` ` `` - Lowercase char
 - `` <A-`> `` - Uppercase char
@@ -486,9 +501,9 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 - `ga` - Go to alternate file
 - `gt` - Go to window top
 - `gm` - Go to window middle
-- `gb` - Go to window bottom
 - `g.` - Go to last modification
 - Visual/operator-pending mode variants
+- Note: `gb` repurposed for block comments
 
 ### Match Mode (m prefix) - ✅ Implemented
 - `mm` - Jump to matching bracket (preserves Vim's `%`)
@@ -515,8 +530,14 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 ### Space Mode - ✅ Implemented
 - `<leader>k` - Hover docs
 - `<leader>'` - Resume last picker (telescope)
-- `<leader>C` - Toggle block comments
 - `<leader>R` - Replace from clipboard
+
+### Comments - ✅ Implemented
+- `gcc` - Toggle line comment
+- `gbc` - Toggle block comment
+- `gc` - Line comment operator (with motion)
+- `gb` - Block comment operator (with motion)
+- `gcO` / `gco` / `gcA` - Add comment above/below/at EOL
 
 ### Visual/Select Mode - ✅ Implemented
 - `d` - Delete selection without yanking
@@ -526,6 +547,7 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 - `x` - Extend selection down
 - `X` - Convert to linewise selection
 - `<A-x>` - Shrink to line bounds
+- `<A-S-j>` / `<A-S-k>` - Duplicate selection down/up (visual mode only)
 
 ---
 
@@ -551,26 +573,67 @@ These are deliberate differences from Helix's default behavior:
 
 ---
 
-## Recent Changes (2025-12-28)
+## Recent Changes (2025-12-29)
 
-### Fixed `%` Select-All
+### Reorganized Diagnostics Keymaps
+- **Changed diagnostics from `<leader>x*` to `<leader>d*` pattern**
+- New diagnostic keymaps:
+  - `<leader>dd` - Document diagnostics (Telescope)
+  - `<leader>dw` - Workspace diagnostics (Telescope)
+  - `<leader>dl` - Line diagnostics (float window)
+  - `<leader>db` - Buffer diagnostics (Telescope)
+- Updated telescope.lua, lspconfig.lua, and mini-clue.lua
+- Freed up `<leader>x` prefix for future use
+
+### Fixed Line Duplication Keymaps
+- **FIXED:** Previous `<leader>dd`, `<leader>du`, `<leader>db` duplication keymaps were broken (never loaded properly)
+- **Researched 2025 best practices** including mini.operators, duplicate.nvim, and native Vim `:t` command
+- **Analyzed all conflicts** across Ghostty terminal, Zellij, Vim defaults, and existing keymaps
+- **NEW IMPLEMENTATION:** `<A-S-j>` / `<A-S-k>` for duplicate selection down/up
+  - **Visual mode only** - Terminal conflicts prevent reliable `<A-S-j>`/`<A-S-k>` in normal mode
+  - `<A-j>`/`<A-k>` are used for Zellij pane navigation, and terminals can't reliably distinguish `<A-S-j>` from `<A-j>`
+  - Workflow: Press `x` to select line, then `<A-S-j>` to duplicate
+  - Uses native Vim `:t` command (no yank register pollution)
+  - Selection is preserved after duplication
+  - More intentional: explicitly select what you want to duplicate
+- **Key advantages over old `yyp` method:**
+  - Doesn't pollute yank register
+  - Visual mode properly keeps selection after duplicate
+  - Actually works (old keymaps never loaded)
+  - No terminal modifier key conflicts
+
+### Switched to Comment.nvim for Block Comment Support
+- **Replaced mini.comment with Comment.nvim** to gain block comment functionality
+- **Repurposed `gb` for block comments** (was "go to window bottom", redundant with `ge`)
+- New comment keybindings:
+  - `gcc` - Toggle line comment
+  - `gbc` - Toggle block comment
+  - `gc{motion}` - Line comment operator (e.g., `gcap`, `gcip`)
+  - `gb{motion}` - Block comment operator (e.g., `gbip`, `gb2j`)
+  - `gcO` / `gco` / `gcA` - Add comment above/below/at EOL
+- Fixed broken `gcb` → `gbc` mapping that didn't work
+- Removed redundant `gb` (go to window bottom) from goto mode
+
+### Previous Changes (2025-12-28)
+
+#### Fixed `%` Select-All
 - Disabled matchit plugin via `vim.g.loaded_matchit = 1` in init.lua
 - This prevents matchit from overriding the `%` keymap
 - Bracket matching functionality preserved via `mm`
 
-### Simplified Keymap Implementations
+#### Simplified Keymap Implementations
 - Replaced complex `feedkeys` calls with direct command strings
 - `%` now uses `<cmd>normal! ggVG<CR>` instead of feedkeys
 - Case transformations simplified to `vul` and `vUl`
 - Change char mapping simplified to `"_xi`
 - Better performance and more maintainable code
 
-### Updated nvim-cmp
+#### Updated nvim-cmp
 - Added `windwp/nvim-autopairs` to dependencies
 - Removed `<C-p>` mapping (conflict with Zellij pane mode)
 - Use `<S-Tab>` or up arrow for previous completion
 
-### Enhanced nvim-autopairs
+#### Enhanced nvim-autopairs
 - Added safety check for `get_rules` to prevent errors
 - Improved spacing rule with proper deletion behavior
 - Added TypeScript to treesitter config
@@ -579,4 +642,4 @@ These are deliberate differences from Helix's default behavior:
 
 ## Last Updated
 
-**2025-12-28** - Fixed % select-all by disabling matchit, simplified keymap implementations, updated completion and autopairs configurations.
+**2025-12-29** - Switched from mini.comment to Comment.nvim for block comment support, repurposed `gb` for block comments.

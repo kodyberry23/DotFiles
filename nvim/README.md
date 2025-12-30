@@ -247,9 +247,13 @@ Character search works across line boundaries (like Helix):
 
 | Key | Description |
 |-----|-------------|
-| `<leader>c` | Toggle line comment |
-| `<leader>C` | Toggle block comment |
-| `gc` | Toggle comment (Vim motion) |
+| `gcc` | Toggle line comment |
+| `gbc` | Toggle block comment |
+| `gc` + motion | Line comment operator (e.g., `gcap`, `gcip`) |
+| `gb` + motion | Block comment operator (e.g., `gbip`, `gb2j`) |
+| `gc` (visual) | Line comment selection |
+| `gb` (visual) | Block comment selection |
+| `gcO` / `gco` / `gcA` | Add comment above/below/at EOL |
 
 ### 🎨 UI Toggles
 

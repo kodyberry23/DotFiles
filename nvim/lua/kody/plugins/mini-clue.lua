@@ -75,6 +75,7 @@ return {
         { mode = "n", keys = "<Leader>u", desc = "+ui/toggle" },
         { mode = "n", keys = "<Leader>t", desc = "+toggle" },
         { mode = "n", keys = "<Leader>l", desc = "+lsp/format" },
+        { mode = "n", keys = "<Leader>d", desc = "+diagnostics" },
 
         -- Unimpaired navigation
         { mode = "n", keys = "[", desc = "+prev" },
@@ -92,12 +93,25 @@ return {
         { mode = "x", keys = "mm", desc = "Match brackets" },
         { mode = "x", keys = "ms", desc = "Surround add" },
 
+        -- Comment keybindings (Comment.nvim)
+        { mode = "n", keys = "gc", desc = "+line comment (operator)" },
+        { mode = "n", keys = "gb", desc = "+block comment (operator)" },
+        { mode = "x", keys = "gc", desc = "Line comment selection" },
+        { mode = "x", keys = "gb", desc = "Block comment selection" },
+        { mode = "n", keys = "gcc", desc = "Toggle line comment" },
+        { mode = "n", keys = "gbc", desc = "Toggle block comment" },
+        { mode = "n", keys = "gcO", desc = "Add comment above" },
+        { mode = "n", keys = "gco", desc = "Add comment below" },
+        { mode = "n", keys = "gcA", desc = "Add comment at EOL" },
+
+        -- Duplication keybindings (visual mode only)
+        { mode = "x", keys = "<A-S-j>", desc = "Duplicate selection down" },
+        { mode = "x", keys = "<A-S-k>", desc = "Duplicate selection up" },
+
         -- Visual mode leader clues
-        { mode = "x", keys = "<Leader>c", desc = "Toggle comment" },
         { mode = "x", keys = "<Leader>y", desc = "Yank to clipboard" },
         { mode = "x", keys = "<Leader>p", desc = "Paste from clipboard" },
         { mode = "x", keys = "<Leader>P", desc = "Paste before (clipboard)" },
-        { mode = "x", keys = "<Leader>C", desc = "Toggle block comment" },
         { mode = "x", keys = "<Leader>R", desc = "Replace from clipboard" },
 
         -- Visual mode unimpaired

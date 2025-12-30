@@ -63,12 +63,12 @@ return {
         opts.desc = "Smart rename"
         vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, opts)
 
-        opts.desc = "Show buffer diagnostics"
-        vim.keymap.set("n", "<leader>D", "<cmd>Telescope diagnostics<CR>", opts)
+        opts.desc = "Show workspace diagnostics"
+        vim.keymap.set("n", "<leader>dw", "<cmd>Telescope diagnostics<CR>", opts)
 
-        -- <leader>e: Show line diagnostics
+        -- <leader>dl: Show line diagnostics
         opts.desc = "Show line diagnostics"
-        vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, opts)
+        vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, opts)
 
         opts.desc = "Show documentation for what is under cursor"
         vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
@@ -84,8 +84,8 @@ return {
         opts.desc = "Next diagnostic"
         vim.keymap.set("n", "]d", vim.diagnostic.goto_next, opts)
 
-        opts.desc = "Document diagnostics"
-        vim.keymap.set("n", "<leader>d", "<cmd>Telescope diagnostics bufnr=0<CR>", opts)
+        opts.desc = "Show buffer diagnostics"
+        vim.keymap.set("n", "<leader>db", "<cmd>Telescope diagnostics bufnr=0<CR>", opts)
 
         opts.desc = "Restart LSP"
         vim.keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
