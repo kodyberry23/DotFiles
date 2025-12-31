@@ -18,12 +18,22 @@ return {
       signs = {
         text = signs,
       },
-      virtual_text = true,
+      virtual_text = {
+        format = function(diagnostic)
+          -- Truncate long messages for inline display
+          local message = diagnostic.message
+          if #message > 60 then
+            return message:sub(1, 57) .. "..."
+          end
+          return message
+        end,
+      },
       underline = true,
       update_in_insert = false,
       float = {
         border = "rounded",
         source = true,
+        max_width = 80, -- Optional: limit width of floating window
       },
     })
 
@@ -63,9 +73,6 @@ return {
         opts.desc = "Smart rename"
         vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, opts)
 
-        opts.desc = "Show workspace diagnostics"
-        vim.keymap.set("n", "<leader>dw", "<cmd>Telescope diagnostics<CR>", opts)
-
         -- <leader>dl: Show line diagnostics
         opts.desc = "Show line diagnostics"
         vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, opts)
@@ -91,6 +98,15 @@ return {
         vim.keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
       end,
     })
+
+    -- Optional: Auto-show diagnostics on CursorHold
+    -- Note: This may be intrusive. Uncomment if desired.
+    -- If using this, consider increasing updatetime in options.lua (e.g., to 300)
+    -- vim.api.nvim_create_autocmd("CursorHold", {
+    --   callback = function()
+    --     vim.diagnostic.open_float(nil, { focus = false })
+    --   end,
+    -- })
 
     -- Capabilities
     local cmp_nvim_lsp = require("cmp_nvim_lsp")
