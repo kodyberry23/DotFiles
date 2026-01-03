@@ -46,8 +46,12 @@ keymap.set({ "n", "i", "v" }, "<C-s>", "<cmd>w<CR><Esc>", { desc = "Save file" }
 
 -- Comments: handled by Comment.nvim (gcc = line, gbc = block toggle, gc/gb = operators)
 
+-- Yank and keep cursor at end of selection
+keymap.set("v", "y", "y`>", { desc = "Yank and move to end" })
+
 -- Clipboard operations (helix: space+y/p for system clipboard)
-keymap.set({ "n", "v" }, "<leader>y", '"+y', { desc = "Yank to clipboard" })
+keymap.set("v", "<leader>y", '"+y`>', { desc = "Yank to clipboard" })
+keymap.set("n", "<leader>y", '"+y', { desc = "Yank to clipboard" })
 keymap.set("n", "<leader>Y", '"+Y', { desc = "Yank line to clipboard" })
 keymap.set({ "n", "v" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
 keymap.set({ "n", "v" }, "<leader>P", '"+P', { desc = "Paste before from clipboard" })
