@@ -27,7 +27,6 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `<C-u>` | `<C-u>zz` | Scroll half-page up (centered) | keymaps.lua |
 | `n` | `nzzzv` | Next search match (centered) | keymaps.lua |
 | `N` | `Nzzzv` | Previous search match (centered) | keymaps.lua |
-| `<C-s>` | `<cmd>w<CR><Esc>` | Save file | keymaps.lua |
 | `<C-S-j>` | `<cmd>m .+1<CR>==` | Move line down | keymaps.lua |
 | `<C-S-k>` | `<cmd>m .-2<CR>==` | Move line up | keymaps.lua |
 | `!` | `:r!` | Insert shell command output | keymaps.lua |
@@ -348,7 +347,6 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 
 | Key | Action | Description | Source |
 |-----|--------|-------------|--------|
-| `<C-s>` | `<cmd>w<CR><Esc>` | Save file | keymaps.lua |
 | `<C-w>` | `<C-w>` | Delete word backward | keymaps.lua |
 | `<A-BS>` | `<C-w>` | Delete word backward | keymaps.lua |
 | `<A-d>` | `<C-o>dw` | Delete word forward | keymaps.lua |
@@ -384,7 +382,51 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `<leader>p` | `"+p` | Paste from clipboard | keymaps.lua |
 | `<leader>P` | `"+P` | Paste before from clipboard | keymaps.lua |
 | `<leader>R` | `"+p` | Replace from clipboard | keymaps.lua |
-| `<C-s>` | `<cmd>w<CR><Esc>` | Save file | keymaps.lua |
+
+---
+
+## Avante (AI Assistant)
+
+**Cursor-like AI pair programming assistant with Claude Sonnet 4.5 via GitHub Copilot.**
+
+| Key | Action | Description | Source |
+|-----|--------|-------------|--------|
+| `<leader>aa` | Ask | Open AI chat sidebar | avante.lua |
+| `<leader>ar` | Refresh | Refresh chat sidebar | avante.lua |
+| `<leader>ae` | Edit | Edit selected code (visual mode) | avante.lua |
+| `<leader>ac` | Add Current Buffer | Toggle current buffer in context | avante.lua |
+| `<leader>aB` | Add All Buffers | Add all open buffers to context | avante.lua |
+
+### Sidebar Mode (when Avante sidebar is open)
+
+| Key | Action | Description | Source |
+|-----|--------|-------------|--------|
+| `<C-s>` | Submit | Submit message (in chat input) | avante.lua |
+| `a` | Apply Cursor | Apply suggestion at cursor | avante.lua |
+| `A` | Apply All | Apply all suggestions | avante.lua |
+| `r` | Retry | Retry user request | avante.lua |
+| `e` | Edit | Edit user request | avante.lua |
+| `<Tab>` | Switch Windows | Switch between windows | avante.lua |
+| `<S-Tab>` | Reverse Switch | Reverse switch windows | avante.lua |
+| `d` | Remove File | Remove file from context | avante.lua |
+| `@` | Add File | Add file to context | avante.lua |
+| `q` | Close | Close sidebar | avante.lua |
+| `]p` | Next Prompt | Next prompt in history | avante.lua |
+| `[p` | Previous Prompt | Previous prompt in history | avante.lua |
+
+### Diff Mode (when reviewing AI suggestions)
+
+| Key | Action | Description | Source |
+|-----|--------|-------------|--------|
+| `co` | Choose Ours | Keep current version | avante.lua |
+| `ct` | Choose Theirs | Accept AI suggestion | avante.lua |
+| `ca` | Choose All Theirs | Accept all AI suggestions | avante.lua |
+| `cb` | Choose Both | Keep both versions | avante.lua |
+| `cc` | Choose Cursor | Choose version at cursor | avante.lua |
+| `]x` | Next Conflict | Jump to next conflict | avante.lua |
+| `[x` | Previous Conflict | Jump to previous conflict | avante.lua |
+
+**Note:** `<C-s>` is reserved for Avante chat submit. Use `:w` or `ZZ` to save files (Helix-style).
 
 ---
 
@@ -573,9 +615,22 @@ These are deliberate differences from Helix's default behavior:
 
 ---
 
-## Recent Changes (2025-12-29)
+## Recent Changes (2026-01-02)
 
-### Reorganized Diagnostics Keymaps
+### Replaced CodeCompanion with Avante
+- **Switched from codecompanion.nvim to avante.nvim** for AI assistance
+- **Removed `<C-s>` save keybinding** to avoid conflict with Avante chat submit
+- Use `:w` or `ZZ` to save files (Helix-style)
+- Added comprehensive Avante keybindings:
+  - `<leader>aa` - Open AI chat
+  - `<leader>ae` - Edit selected code
+  - `<leader>ac` - Toggle current buffer in context
+  - Sidebar navigation and diff resolution keymaps
+- Avante uses Claude Sonnet 4.5 via GitHub Copilot integration
+
+### Previous Changes (2025-12-29)
+
+#### Reorganized Diagnostics Keymaps
 - **Changed diagnostics from `<leader>x*` to `<leader>d*` pattern**
 - New diagnostic keymaps:
   - `<leader>dd` - Document diagnostics (Telescope)
@@ -642,4 +697,4 @@ These are deliberate differences from Helix's default behavior:
 
 ## Last Updated
 
-**2025-12-29** - Switched from mini.comment to Comment.nvim for block comment support, repurposed `gb` for block comments.
+**2026-01-02** - Replaced CodeCompanion with Avante, removed `<C-s>` save keybinding.

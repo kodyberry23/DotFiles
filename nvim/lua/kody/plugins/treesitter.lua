@@ -3,6 +3,10 @@ return {
   lazy = false,
   build = ":TSUpdate",
   config = function()
+    -- CRITICAL: Register markdown parser for Avante filetype
+    -- This allows render-markdown.nvim to work with Avante buffers
+    vim.treesitter.language.register("markdown", "Avante")
+
     -- Install parsers
     require("nvim-treesitter").install({
       "vim", "vimdoc", "query",
@@ -23,6 +27,7 @@ return {
         "lua", "javascript", "typescript", "python",
         "rust", "go", "bash", "sh", "html", "css",
         "json", "yaml", "markdown",
+        "Avante", -- Enable treesitter for Avante buffers
       },
       callback = function()
         vim.treesitter.start()

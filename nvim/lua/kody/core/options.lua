@@ -25,6 +25,21 @@ opt.virtualedit = "onemore"
 opt.termguicolors = true
 opt.background = "dark"
 opt.signcolumn = "yes"
+opt.laststatus = 3 -- Global statusline (required for avante.nvim)
+
+-- Markdown rendering (for render-markdown.nvim and Avante)
+opt.conceallevel = 2
+opt.concealcursor = "nc" -- Conceal in normal and command mode
+
+-- Ensure Avante buffers have correct conceallevel
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "Avante", "AvanteInput" },
+  callback = function()
+    vim.opt_local.conceallevel = 2
+    vim.opt_local.concealcursor = "nc"
+  end,
+  desc = "Set conceallevel for Avante buffers",
+})
 
 -- Floating window borders (Neovim 0.11+)
 vim.o.winborder = "rounded"

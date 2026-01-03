@@ -71,6 +71,7 @@ return {
         { mode = "n", keys = "<Leader>w", desc = "+window" },
         { mode = "n", keys = "<Leader>q", desc = "+quit" },
         { mode = "n", keys = "<Leader>b", desc = "+buffer" },
+        { mode = "n", keys = "<Leader>bc", desc = "+buffer close" },
         { mode = "n", keys = "<Leader>h", desc = "+git hunk" },
         { mode = "n", keys = "<Leader>u", desc = "+ui/toggle" },
         { mode = "n", keys = "<Leader>t", desc = "+toggle" },

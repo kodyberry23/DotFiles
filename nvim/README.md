@@ -7,7 +7,7 @@ A modern Neovim configuration with Helix-inspired keybindings and workflow, opti
 - 🎯 **Helix-inspired keybindings** - Familiar muscle memory for Helix users
 - 🌳 **Treesitter** - Advanced syntax highlighting and code understanding
 - 🔍 **LSP Integration** - Full language server support with diagnostics
-- 🤖 **AI Pair Programming** - Built-in AI coding assistant (CodeCompanion)
+- 🤖 **AI Pair Programming** - Built-in AI coding assistant (Avante)
 - 📦 **Mini.nvim Suite** - Lightweight, focused plugins for core functionality
 - ⚡ **Fast Startup** - Lazy loading with optimized plugin management
 - 🎨 **Beautiful UI** - Zenbones colorscheme with lualine statusline
@@ -81,7 +81,7 @@ nvim/
             ├── lualine.lua
             ├── nvim-cmp.lua
             ├── nvim-autopairs.lua
-            ├── codecompanion.lua
+            ├── avante.lua
             ├── todo-comments.lua
             ├── zellij-nav.lua
             ├── mini-*.lua      # Mini.nvim plugins
@@ -226,13 +226,14 @@ Character search works across line boundaries (like Helix):
 
 | Key | Description |
 |-----|-------------|
-| `<C-s>` | Save (in any mode) |
 | `U` | Redo |
 | `J` | Join lines (keep cursor) |
 | `<C-d>` / `<C-u>` | Half-page scroll (centered) |
 | `n` / `N` | Next/prev match (centered) |
 | `x` | Select line |
 | `X` | Select to line end |
+
+**Note:** `:w` or `ZZ` to save files (Helix-style)
 
 ### 📋 Clipboard
 
@@ -242,6 +243,21 @@ Character search works across line boundaries (like Helix):
 | `<leader>Y` | Yank line to clipboard |
 | `<leader>p` | Paste from clipboard |
 | `<leader>P` | Paste before from clipboard |
+
+### 🤖 AI Assistant (Avante)
+
+| Key | Description |
+|-----|-------------|
+| `<leader>aa` | Ask AI (open chat) |
+| `<leader>ar` | Refresh chat |
+| `<leader>ae` | Edit selection (visual mode) |
+| `<leader>ac` | Add current buffer to context |
+| `<leader>aB` | Add all open buffers to context |
+| `<C-s>` | Submit message (in chat input) |
+| `a` | Apply suggestion at cursor |
+| `A` | Apply all suggestions |
+| `@` | Add file to context |
+| `d` | Remove file from context |
 
 ### 💭 Comments
 
@@ -312,7 +328,7 @@ Character search works across line boundaries (like Helix):
 - **todo-comments.nvim** - Highlight TODO/FIXME/NOTE
 
 ### AI & Productivity
-- **codecompanion.nvim** - AI pair programming assistant
+- **avante.nvim** - AI pair programming assistant (Cursor-like experience)
 - **zellij-nav.nvim** - Seamless Zellij navigation
 
 ## 🛠️ LSP Configuration
@@ -460,5 +476,5 @@ Edit `lua/kody/core/keymaps.lua` - all keybindings are centralized there.
 ---
 
 **Maintained by:** Kody Berry  
-**Last Updated:** December 2024  
+**Last Updated:** January 2026  
 **Neovim Version:** 0.11.5

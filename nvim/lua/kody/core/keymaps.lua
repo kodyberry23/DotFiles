@@ -18,8 +18,7 @@ local keymap = vim.keymap
 -- Clear search highlights (helix: Escape clears)
 keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear highlights" })
 
--- Quick save (helix uses :w, but Ctrl-s is convenient)
-keymap.set({ "n", "i", "v" }, "<C-s>", "<cmd>w<CR><Esc>", { desc = "Save file" })
+-- Note: <C-s> removed to avoid conflict with Avante chat submit (use :w or ZZ to save)
 
 -- ============================================================================
 -- SPACE MODE (Leader) - Pickers and Actions

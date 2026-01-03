@@ -7,12 +7,12 @@ return {
   },
   keys = {
     -- Delete current buffer
-    { '<leader>bc', '<Cmd>BufDel<CR>', desc = 'Delete buffer' },
+    { '<leader>bcc', '<Cmd>BufDel<CR>', desc = 'Close current buffer' },
     
     -- Delete all buffers
-    { '<leader>ba', '<Cmd>BufDelAll<CR>', desc = 'Delete all buffers' },
+    { '<leader>bca', '<Cmd>BufDelAll<CR>', desc = 'Close all buffers' },
     
     -- Delete all buffers except current
-    { '<leader>bo', '<Cmd>BufDelOthers<CR>', desc = 'Delete other buffers' },
+    { '<leader>bco', '<Cmd>BufDelOthers<CR>', desc = 'Close other buffers' },
   },
 }
