@@ -19,6 +19,7 @@ opt.smartcase = true
 
 -- Cursor line
 opt.cursorline = true
+opt.virtualedit = "onemore"
 
 -- Appearance
 opt.termguicolors = true
