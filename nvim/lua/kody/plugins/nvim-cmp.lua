@@ -29,7 +29,6 @@ return {
         -- Completion
         ["<C-Space>"] = cmp.mapping.complete(),
         ["<CR>"] = cmp.mapping.confirm({ select = true }),
-        ["<C-y>"] = cmp.mapping.confirm({ select = true }),
         
         -- Note: These may not work in all terminals due to key code limitations
         ["<S-CR>"] = cmp.mapping.confirm({ 
@@ -64,12 +63,13 @@ return {
 
     -- Command-line completion for `:` commands
     cmp.setup.cmdline(":", {
+      completion = { completeopt = "menu,menuone,noselect" },
       mapping = cmp.mapping.preset.cmdline({
         ["<Tab>"] = { c = cmp.mapping.select_next_item() },
         ["<S-Tab>"] = { c = cmp.mapping.select_prev_item() },
         ["<C-n>"] = { c = cmp.mapping.select_next_item() },
-        ["<C-y>"] = { c = cmp.mapping.confirm({ select = true }) },
         ["<C-e>"] = { c = cmp.mapping.abort() },
+        -- No <CR> mapping - Enter executes your command, use Tab to select completions
       }),
       sources = cmp.config.sources({
         { name = "path" },

@@ -43,8 +43,10 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | Key | Action | Description | Source |
 |-----|--------|-------------|--------|
 | `<C-n>` | Find Under | Start multi-cursor on word | vim-visual-multi.lua |
-| `<C-Down>` | Add Cursor Down | Add cursor below | vim-visual-multi.lua |
-| `<C-Up>` | Add Cursor Up | Add cursor above | vim-visual-multi.lua |
+| `C` | Add Cursor Down | Add cursor on next line | vim-visual-multi.lua |
+| `<A-C>` | Add Cursor Up | Add cursor on previous line | vim-visual-multi.lua |
+| `<C-Down>` | Add Cursor Down | Add cursor below (column mode) | vim-visual-multi.lua |
+| `<C-Up>` | Add Cursor Up | Add cursor above (column mode) | vim-visual-multi.lua |
 | `\\c` (visual) | Visual Cursors | Create cursors from selection | vim-visual-multi.lua |
 
 ### VM Selection Manipulation (Active when VM started)

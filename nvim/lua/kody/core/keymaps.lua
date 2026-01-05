@@ -18,6 +18,9 @@ local keymap = vim.keymap
 -- Clear search highlights (helix: Escape clears)
 keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear highlights" })
 
+-- Exit insert mode without moving cursor back
+keymap.set("i", "<Esc>", "<Esc>`^", { desc = "Exit insert mode, keep cursor position" })
+
 -- Note: <C-s> removed to avoid conflict with Avante chat submit (use :w or ZZ to save)
 
 -- ============================================================================
@@ -213,6 +216,7 @@ keymap.set("v", "<A-x>", "V", { desc = "Shrink to line bounds" })
 keymap.set("n", "d", '"_x', { desc = "Delete char under cursor" })
 keymap.set("n", "c", '"_xi', { desc = "Change char under cursor" })
 keymap.set("v", "d", '"_d', { desc = "Delete selection" })
+keymap.set("v", "D", 'd', { desc = "Delete selection (yank)" })
 keymap.set("v", "c", '"_c', { desc = "Change selection" })
 
 -- Delete/change with motions (vim style - use Alt modifier)
@@ -262,6 +266,67 @@ keymap.set("v", "<C-S-k>", ":m '<-2<CR>gv=gv", { desc = "Move selection up" })
 
 -- Repeat last motion (helix: Alt-.)
 keymap.set({ "n", "x", "o" }, "<A-.>", ";", { remap = true, desc = "Repeat last motion" })
+
+-- ============================================================================
+-- HELIX-STYLE MULTI-CURSOR MAPPINGS
+-- Reference: https://docs.helix-editor.com/keymap.html#selection-manipulation
+-- Integrated with vim-visual-multi plugin
+-- ============================================================================
+
+-- C - Add cursor down (create cursors vertically)
+-- Alt-C - Add cursor up (create cursors vertically)
+-- IMPORTANT: These mappings are defined in vim-visual-multi.lua using <Plug> mappings
+-- DO NOT define C or Alt-C mappings here - they will conflict with the plugin!
+--
+-- How it works:
+-- - Normal mode: C adds cursor on the line below, Alt-C adds cursor above
+-- - Press C/Alt-C repeatedly to add more cursors
+-- - Cursors are added at the same column, shorter lines are skipped
+-- - Ctrl-Down and Ctrl-Up are aliases for C and Alt-C
+-- - Visual mode: C creates cursors from the visual selection
+
+-- * - search_selection_detect_word_boundaries: Use word under cursor as search pattern
+-- In Helix, this searches with word boundaries (\b) automatically
+-- In VM mode, this will select all matches of the word
+keymap.set("n", "*", function()
+  local vm_active = vim.fn.exists("*vm#is_active") == 1 and vim.fn["vm#is_active"]() == 1
+  if vm_active then
+    -- In VM mode, use VM's find word feature
+    vim.cmd("normal! *")
+  else
+    -- In normal mode, start VM with word under cursor
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Plug>(VM-Find-Under)", true, false, true), "m", false)
+  end
+end, { desc = "Search word under cursor / Start multi-cursor on word" })
+
+-- ; - collapse_selection: Collapse to single cursor (Helix style)
+-- In Helix, ; collapses selection to cursor position
+-- In VM mode, this collapses all selections to single cursor
+-- In normal mode, this is remapped to repeat last f/t/F/T motion via Alt-.
+keymap.set("n", ";", function()
+  local vm_active = vim.fn.exists("*vm#is_active") == 1 and vim.fn["vm#is_active"]() == 1
+  if vm_active then
+    -- Collapse to single cursor in VM mode
+    vim.cmd("call vm#commands#toggle_single_region()")
+  else
+    -- In normal mode, repeat last f/t/F/T motion (Vim default behavior)
+    vim.api.nvim_feedkeys(";", "n", false)
+  end
+end, { desc = "Collapse to single cursor (VM) / Repeat f/t motion" })
+
+-- , - keep_primary_selection: Keep only primary selection
+-- In Helix, , keeps only the primary selection and removes all others
+-- When not in VM mode, selects the current line (same as 'x')
+keymap.set("n", ",", function()
+  local vm_active = vim.fn.exists("*vm#is_active") == 1 and vim.fn["vm#is_active"]() == 1
+  if vm_active then
+    -- In VM: keep only primary selection (collapse to one, but stay in VM)
+    vim.cmd("call vm#commands#toggle_single_region()")
+  else
+    -- Fallback: Vim default - reverse repeat of f/t motion
+    vim.api.nvim_feedkeys(",", "n", false)
+  end
+end, { desc = "Keep primary selection / Reverse repeat f/t motion" })
 
 -- Undo/Redo (helix: u/U)
 keymap.set("n", "U", "<C-r>", { desc = "Redo" })
@@ -321,3 +386,105 @@ keymap.set("v", "|", ":!", { desc = "Pipe selection through shell" })
 
 -- Shell insert output (helix: !)
 keymap.set("n", "!", ":r!", { desc = "Insert shell command output" })
+-- ============================================================================
+-- HELIX MULTI-CURSOR & SELECTION WORKFLOW
+-- ============================================================================
+-- CRITICAL KEYMAPS FOR HELIX-LIKE MULTI-CURSOR EDITING:
+--
+-- START MULTI-CURSOR:
+--   <C-n>           - Start on word under cursor (find under), press again for next match
+--   *               - Search word under cursor with word boundaries (start VM on all matches)
+--   C               - Add cursor on line below (at same column)
+--   <A-C>           - Add cursor on line above (at same column)
+--   <C-Down/Up>     - Alternative to C/Alt-C (same functionality)
+--   v then \\c      - Create cursors from visual selection
+--   %               - Select entire file (then use s to select regex matches)
+--
+-- EDIT WITH MULTIPLE CURSORS:
+--   n / N           - Next/previous match (extends selection in VM mode)
+--   q / Q           - Skip or remove current selection
+--   <Tab>           - Switch between cursor mode and extend mode
+--
+-- ADD MORE CURSORS:
+--   C               - Add cursor on next line (press multiple times to add more)
+--   <A-C>           - Add cursor on previous line (press multiple times to add more)
+--   <C-Down>        - Same as C
+--   <C-Up>          - Same as Alt-C
+--
+-- MANIPULATE SELECTIONS:
+--   s               - Select all regex matches inside selections
+--   S               - Split selection into sub-selections on matches
+--   <A-s>           - Split selection on newlines
+--   &               - Align selections in columns
+--   _               - Trim whitespace from selections
+--   ;               - Collapse to single cursor (exit VM mode)
+--   ,               - Keep ONLY primary selection (alternative to ;)
+--   <A-,>           - Remove primary selection
+--   <A-;>           - Flip selection (reverse direction)
+--   <A-:>           - Ensure selections face forward
+--   <A-minus>       - Merge all selections
+--   <A-_>           - Merge consecutive selections
+--   ( / )           - Rotate to prev/next selection
+--   <A-(> / <A-)>   - Rotate selection contents backward/forward
+--
+-- SEARCH WITH MULTIPLE SELECTIONS:
+--   /               - Start search (adds all matches to selections)
+--   *               - Use word under cursor as search pattern (word boundaries)
+--   <A-*>           - Use selection as exact search pattern (no word boundaries)
+--   n / N           - Next/previous match (extend selection in VM)
+--
+-- FILTER SELECTIONS:
+--   K               - Keep only selections matching regex pattern
+--   <A-K>           - Remove selections matching regex pattern
+--
+-- TREE-SITTER SELECTIONS (when available):
+--   <A-o>/<A-Up>    - Expand to parent syntax node
+--   <A-i>/<A-Down>  - Shrink to child syntax node
+--   <A-p>/<A-Left>  - Select previous sibling
+--   <A-n>/<A-Right> - Select next sibling
+--   <A-a>           - Select all siblings
+--   <A-I>           - Select all children
+--   <A-e>           - Move to end of parent node
+--   <A-b>           - Move to start of parent node
+--
+-- OPERATIONS ON SELECTIONS:
+--   d / <A-d>       - Delete selections (no yank for d)
+--   D               - Delete and yank selections
+--   c / <A-c>       - Change selections (no yank for c)
+--   y               - Yank selections
+--   p               - Paste over selections
+--   >/<             - Indent/unindent selections
+--   ~               - Toggle case
+--   `/<A-`>         - Lowercase/uppercase
+--   J               - Join lines inside selections
+--   <A-J>           - Join lines and select inserted space
+--   p               - Paste and replace selections
+--   >/<            - Indent/unindent
+--   ~               - Toggle case
+--   `/<A-`>         - Lowercase/uppercase
+--
+-- EXIT MULTI-CURSOR:
+--   Escape          - Exit VM mode, back to single cursor
+--   ,               - Keep primary selection only (collapses to 1 cursor)
+--
+-- EXAMPLES:
+--   1. Replace multiple words:
+--      <C-n>          - Select first word
+--      n n n          - Select next 3 matches (4 total selections)
+--      c              - Change all 4 at once, enter insert mode
+--      [type new text]
+--      Escape         - Exit insert, back to normal
+--
+--   2. Add cursor to next line:
+--      C              - Copy current line to next line
+--      C              - Copy to line below that
+--      (manual edits)
+--      Escape         - Exit multi-cursor
+--
+--   3. Search & edit multiple:
+--      /pattern       - Search, adds all matches as selections
+--      n n            - Add more matches (optional)
+--      d              - Delete all matches
+--
+-- See: vim-visual-multi.lua for VM plugin configuration
+-- ============================================================================
