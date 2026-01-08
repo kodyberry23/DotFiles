@@ -7,7 +7,7 @@ return {
     miniclue.setup({
       -- Clue window settings
       window = {
-        delay = 300,  -- Delay before showing clue window (ms)
+        delay = 100,  -- Delay before showing clue window (ms) - reduced for faster response
         config = {
           width = "auto",
           border = "rounded",
@@ -71,12 +71,14 @@ return {
         { mode = "n", keys = "<Leader>w", desc = "+window" },
         { mode = "n", keys = "<Leader>q", desc = "+quit" },
         { mode = "n", keys = "<Leader>b", desc = "+buffer" },
+        { mode = "n", keys = "<Leader>bp", desc = "Buffer picker" },
         { mode = "n", keys = "<Leader>bc", desc = "+buffer close" },
         { mode = "n", keys = "<Leader>h", desc = "+git hunk" },
         { mode = "n", keys = "<Leader>u", desc = "+ui/toggle" },
         { mode = "n", keys = "<Leader>t", desc = "+toggle" },
         { mode = "n", keys = "<Leader>l", desc = "+lsp/format" },
         { mode = "n", keys = "<Leader>d", desc = "+diagnostics" },
+        { mode = "n", keys = "<Leader>o", desc = "+opencode" },
 
         -- Unimpaired navigation
         { mode = "n", keys = "[", desc = "+prev" },

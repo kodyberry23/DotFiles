@@ -191,10 +191,52 @@ return {
       },
     })
 
+    vim.lsp.config("vtsls", {
+      settings = {
+        vtsls = {
+          autoUseWorkspaceTsdk = true,
+          experimental = {
+            completion = {
+              enableServerSideFuzzyMatch = true,
+            },
+            maxInlayHintLength = 30,
+          },
+        },
+        typescript = {
+          tsserver = {
+            maxTsServerMemory = 8192,
+          },
+          inlayHints = {
+            parameterNames = { enabled = "all" },
+            parameterTypes = { enabled = true },
+            variableTypes = { enabled = true },
+            propertyDeclarationTypes = { enabled = true },
+            functionLikeReturnTypes = { enabled = true },
+            enumMemberValues = { enabled = true },
+          },
+          preferences = {
+            includeCompletionsForModuleExports = true,
+            includeCompletionsWithSnippetText = true,
+            includeCompletionsWithInsertText = true,
+          },
+        },
+        javascript = {
+          inlayHints = {
+            parameterNames = { enabled = "all" },
+            parameterTypes = { enabled = true },
+            variableTypes = { enabled = true },
+            propertyDeclarationTypes = { enabled = true },
+            functionLikeReturnTypes = { enabled = true },
+            enumMemberValues = { enabled = true },
+          },
+        },
+      },
+    })
+
     -- Enable all servers
     vim.lsp.enable({
       "lua_ls",
-      "ts_ls",
+      "vtsls",
       "html",
       "cssls",
       "tailwindcss",

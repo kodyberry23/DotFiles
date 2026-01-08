@@ -21,7 +21,7 @@ keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear highlights" })
 -- Exit insert mode without moving cursor back
 keymap.set("i", "<Esc>", "<Esc>`^", { desc = "Exit insert mode, keep cursor position" })
 
--- Note: <C-s> removed to avoid conflict with Avante chat submit (use :w or ZZ to save)
+-- Note: <C-s> not mapped to save (use :w or ZZ to save, Helix-style)
 
 -- ============================================================================
 -- SPACE MODE (Leader) - Pickers and Actions
@@ -89,6 +89,12 @@ keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to window below" })
 keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to window above" })
 keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
 
+-- Terminal mode window navigation (for OpenCode and other terminal buffers)
+keymap.set("t", "<C-h>", "<C-\\><C-n><C-w>h", { desc = "Move to left window" })
+keymap.set("t", "<C-j>", "<C-\\><C-n><C-w>j", { desc = "Move to window below" })
+keymap.set("t", "<C-k>", "<C-\\><C-n><C-w>k", { desc = "Move to window above" })
+keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Move to right window" })
+
 -- Window splits (helix: Ctrl-w + s/v)
 keymap.set("n", "<leader>wv", "<cmd>vsplit<CR>", { desc = "Vertical split" })
 keymap.set("n", "<leader>ws", "<cmd>split<CR>", { desc = "Horizontal split" })
@@ -110,7 +116,7 @@ keymap.set("n", "<leader>wL", "<C-w>L", { desc = "Move window right" })
 -- File navigation (helix: gg/ge/gh/gl/gs)
 keymap.set("n", "ge", "G", { desc = "Go to last line" })
 keymap.set("n", "gh", "0", { desc = "Go to line start" })
-keymap.set("n", "gl", "$l", { desc = "Go to line end" })
+keymap.set("n", "gl", "$", { desc = "Go to line end" })
 keymap.set("n", "gs", "^", { desc = "Go to first non-blank" })
 
 -- Buffer navigation (helix: gn/gp)
@@ -128,7 +134,14 @@ keymap.set("n", "g.", "`.", { desc = "Go to last change" })
 -- Allows natural Vim behavior: vgl, dgl, cgl, etc.
 keymap.set({ "x", "o" }, "ge", "G", { desc = "To last line" })
 keymap.set({ "x", "o" }, "gh", "0", { desc = "To line start" })
-keymap.set({ "x", "o" }, "gl", "$l", { desc = "To line end" })
+-- Use function for gl in visual mode: $ goes one past EOL, we want to stay on last char
+keymap.set("o", "gl", "$", { desc = "To line end" })
+keymap.set("x", "gl", function()
+  local line_len = #vim.api.nvim_get_current_line()
+  if line_len > 0 then
+    vim.api.nvim_win_set_cursor(0, { vim.fn.line("."), line_len - 1 })
+  end
+end, { desc = "To line end" })
 keymap.set({ "x", "o" }, "gs", "^", { desc = "To first non-blank" })
 keymap.set({ "x", "o" }, "gt", "H", { desc = "To window top" })
 keymap.set({ "x", "o" }, "gm", "M", { desc = "To window middle" })

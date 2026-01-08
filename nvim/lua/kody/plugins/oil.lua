@@ -49,10 +49,15 @@ return {
         ["<C-l>"] = { "actions.refresh", mode = "n" },
         ["<C-r>"] = { "actions.refresh", mode = "n" },
 
-        -- Yank/Copy path (Yazi style: y=yank, cc=copy path)
-        ["y"] = { "actions.copy_entry_path", mode = "n" },
+        -- Yank/Copy path (Yazi style: y=yank)
+        ["y"] = { 
+          "actions.yank_entry", 
+          mode = "n",
+          desc = "Yank the filepath",
+          nowait = true,
+        },
         ["Y"] = {
-          desc = "Copy absolute path",
+          desc = "Copy absolute path to clipboard",
           callback = function()
             local oil = require("oil")
             local entry = oil.get_cursor_entry()
@@ -82,15 +87,22 @@ return {
         -- Trash toggle
         ["g\\"] = { "actions.toggle_trash", mode = "n" },
 
-        -- Selection toggle (Yazi style: <Space>=toggle selection)
-        ["<Space>"] = {
-          desc = "Toggle selection",
+        -- Navigation: Go to top/bottom (Helix style)
+        ["gg"] = {
+          desc = "Go to top of file list",
           callback = function()
-            local oil = require("oil")
-            -- Move to next line after toggle (like Yazi)
-            vim.cmd("normal! j")
+            vim.cmd("normal! gg")
           end,
           mode = "n",
+          nowait = true,
+        },
+        ["ge"] = {
+          desc = "Go to bottom of file list",
+          callback = function()
+            vim.cmd("normal! G")
+          end,
+          mode = "n",
+          nowait = true,
         },
 
         -- Toggle detail view
@@ -125,21 +137,44 @@ return {
       win_options = {
         signcolumn = "yes:2",
       },
-      -- Skip confirmation for simple operations
       skip_confirm_for_simple_edits = true,
-      -- Send deleted files to trash
       delete_to_trash = true,
-      -- Watch for external changes
       watch_for_changes = true,
     })
 
     -- Load extensions
-    require("oil-git-status").setup({
-      show_ignored = false,
-    })
+    require("oil-git-status").setup({ show_ignored = false })
+    require("oil-lsp-diagnostics").setup({ show_signs = true })
 
-    require("oil-lsp-diagnostics").setup({
-      show_signs = true,
+    -- Buffer-local keymap overrides for oil buffers
+    -- Use OilEnter event (fires AFTER Oil applies its keymaps) to guarantee precedence
+    vim.api.nvim_create_autocmd("User", {
+      pattern = "OilEnter",
+      callback = function(args)
+        local buf = args.data and args.data.buf or vim.api.nvim_get_current_buf()
+        if not vim.api.nvim_buf_is_valid(buf) then return end
+
+        -- Override 'ge' to go to bottom (override global ge mapping from nvim-tree etc.)
+        vim.keymap.set("n", "ge", function()
+          local line_count = vim.api.nvim_buf_line_count(0)
+          vim.api.nvim_win_set_cursor(0, { line_count, 0 })
+        end, {
+          buffer = buf,
+          desc = "Go to bottom of file list",
+          silent = true,
+          nowait = true,
+        })
+
+        -- Override 'y' to yank entry path (not act as operator)
+        vim.keymap.set("n", "y", function()
+          require("oil.actions").yank_entry.callback()
+        end, {
+          buffer = buf,
+          desc = "Yank filepath",
+          silent = true,
+          nowait = true,
+        })
+      end,
     })
   end,
   keys = {

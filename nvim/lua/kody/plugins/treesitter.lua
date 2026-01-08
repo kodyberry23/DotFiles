@@ -7,6 +7,11 @@ return {
     -- This allows render-markdown.nvim to work with Avante buffers
     vim.treesitter.language.register("markdown", "Avante")
 
+    -- Setup nvim-treesitter (new API - no more configs module)
+    require("nvim-treesitter").setup({
+      install_dir = vim.fn.stdpath("data") .. "/site",
+    })
+
     -- Install parsers
     require("nvim-treesitter").install({
       "vim", "vimdoc", "query",
@@ -18,8 +23,7 @@ return {
       "json", "yaml", "markdown", "markdown_inline",
     })
 
-    -- Enable treesitter highlighting for all supported filetypes
-    -- The new nvim-treesitter API requires explicit activation
+    -- Enable treesitter highlighting via FileType autocmd (new API)
     vim.api.nvim_create_autocmd("FileType", {
       pattern = {
         "vim", "vimdoc", "query",
@@ -27,12 +31,14 @@ return {
         "lua", "javascript", "typescript", "python",
         "rust", "go", "bash", "sh", "html", "css",
         "json", "yaml", "markdown",
-        "Avante", -- Enable treesitter for Avante buffers
+        "Avante",
       },
       callback = function()
         vim.treesitter.start()
+        -- Enable treesitter-based indentation (experimental)
+        vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
       end,
-      desc = "Enable treesitter highlighting",
+      desc = "Enable treesitter highlighting and indentation",
     })
   end,
 }

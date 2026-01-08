@@ -7,7 +7,7 @@ A modern Neovim configuration with Helix-inspired keybindings and workflow, opti
 - 🎯 **Helix-inspired keybindings** - Familiar muscle memory for Helix users
 - 🌳 **Treesitter** - Advanced syntax highlighting and code understanding
 - 🔍 **LSP Integration** - Full language server support with diagnostics
-- 🤖 **AI Pair Programming** - Built-in AI coding assistant (Avante)
+- 🤖 **AI Pair Programming** - Built-in AI coding assistant (OpenCode)
 - 📦 **Mini.nvim Suite** - Lightweight, focused plugins for core functionality
 - ⚡ **Fast Startup** - Lazy loading with optimized plugin management
 - 🎨 **Beautiful UI** - Zenbones colorscheme with lualine statusline
@@ -81,7 +81,7 @@ nvim/
             ├── lualine.lua
             ├── nvim-cmp.lua
             ├── nvim-autopairs.lua
-            ├── avante.lua
+            ├── opencode.lua
             ├── todo-comments.lua
             ├── zellij-nav.lua
             ├── mini-*.lua      # Mini.nvim plugins
@@ -244,20 +244,17 @@ Character search works across line boundaries (like Helix):
 | `<leader>p` | Paste from clipboard |
 | `<leader>P` | Paste before from clipboard |
 
-### 🤖 AI Assistant (Avante)
+### 🤖 AI Assistant (OpenCode)
 
 | Key | Description |
 |-----|-------------|
-| `<leader>aa` | Ask AI (open chat) |
-| `<leader>ar` | Refresh chat |
-| `<leader>ae` | Edit selection (visual mode) |
-| `<leader>ac` | Add current buffer to context |
-| `<leader>aB` | Add all open buffers to context |
-| `<C-s>` | Submit message (in chat input) |
-| `a` | Apply suggestion at cursor |
-| `A` | Apply all suggestions |
-| `@` | Add file to context |
-| `d` | Remove file from context |
+| `<leader>oo` | Toggle OpenCode terminal |
+| `<leader>oa` | Ask with @this context (auto-submit) |
+| `<leader>ox` | Select/execute an OpenCode action |
+| `<leader>ou` | Scroll OpenCode session up |
+| `<leader>od` | Scroll OpenCode session down |
+| `go` | Add range to prompt (operator, e.g., `goip`) |
+| `goo` | Add current line to prompt |
 
 ### 💭 Comments
 
@@ -328,7 +325,7 @@ Character search works across line boundaries (like Helix):
 - **todo-comments.nvim** - Highlight TODO/FIXME/NOTE
 
 ### AI & Productivity
-- **avante.nvim** - AI pair programming assistant (Cursor-like experience)
+- **opencode.nvim** - AI pair programming assistant powered by OpenCode CLI
 - **zellij-nav.nvim** - Seamless Zellij navigation
 
 ## 🛠️ LSP Configuration
@@ -394,18 +391,30 @@ Toggle light/dark:
 - System theme automatically detected
 - Colors work well in kitty/alacritty/wezterm
 
-## 🤖 AI Assistant (CodeCompanion)
+## 🤖 AI Assistant (OpenCode)
 
-Built-in AI pair programming with OpenAI/Anthropic integration.
+Built-in AI pair programming powered by the OpenCode CLI.
 
-**Usage:**
-```vim
-:CodeCompanionChat  " Open chat
-:CodeCompanionToggle " Toggle chat window
-<leader>a  " Trigger inline actions
-```
+**Setup:**
+1. Install the OpenCode CLI: `npm install -g opencode` or `brew install opencode`
+2. Connect to GitHub Copilot: Run `/connect` in OpenCode and follow the GitHub auth flow
+3. Configure model in `~/.config/opencode/opencode.json`:
+   ```json
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "model": "copilot/claude-sonnet-4-5"
+   }
+   ```
 
-Configure API keys in your environment or plugin config.
+**Usage in Neovim:**
+| Key | Description |
+|-----|-------------|
+| `<leader>oo` | Toggle OpenCode terminal |
+| `<leader>oa` | Ask with @this context (auto-submit) |
+| `<leader>ox` | Select/execute an OpenCode action |
+| `<leader>ou` / `<leader>od` | Scroll OpenCode session |
+| `go` | Add range to prompt (operator) |
+| `goo` | Add current line to prompt |
 
 ## ⚙️ Configuration Tips
 

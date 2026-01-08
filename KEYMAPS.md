@@ -387,48 +387,21 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 
 ---
 
-## Avante (AI Assistant)
+## OpenCode (AI Assistant)
 
-**Cursor-like AI pair programming assistant with Claude Sonnet 4.5 via GitHub Copilot.**
-
-| Key | Action | Description | Source |
-|-----|--------|-------------|--------|
-| `<leader>aa` | Ask | Open AI chat sidebar | avante.lua |
-| `<leader>ar` | Refresh | Refresh chat sidebar | avante.lua |
-| `<leader>ae` | Edit | Edit selected code (visual mode) | avante.lua |
-| `<leader>ac` | Add Current Buffer | Toggle current buffer in context | avante.lua |
-| `<leader>aB` | Add All Buffers | Add all open buffers to context | avante.lua |
-
-### Sidebar Mode (when Avante sidebar is open)
+**AI pair programming assistant powered by OpenCode CLI. Uses Claude Sonnet 4.5 via GitHub Copilot.**
 
 | Key | Action | Description | Source |
 |-----|--------|-------------|--------|
-| `<C-s>` | Submit | Submit message (in chat input) | avante.lua |
-| `a` | Apply Cursor | Apply suggestion at cursor | avante.lua |
-| `A` | Apply All | Apply all suggestions | avante.lua |
-| `r` | Retry | Retry user request | avante.lua |
-| `e` | Edit | Edit user request | avante.lua |
-| `<Tab>` | Switch Windows | Switch between windows | avante.lua |
-| `<S-Tab>` | Reverse Switch | Reverse switch windows | avante.lua |
-| `d` | Remove File | Remove file from context | avante.lua |
-| `@` | Add File | Add file to context | avante.lua |
-| `q` | Close | Close sidebar | avante.lua |
-| `]p` | Next Prompt | Next prompt in history | avante.lua |
-| `[p` | Previous Prompt | Previous prompt in history | avante.lua |
+| `<leader>oo` | Toggle | Toggle OpenCode terminal | opencode.lua |
+| `<leader>oa` | Ask @this | Ask with current context, auto-submit | opencode.lua |
+| `<leader>ox` | Select | Select/execute an OpenCode action | opencode.lua |
+| `<leader>ou` | Scroll up | Half page up in OpenCode session | opencode.lua |
+| `<leader>od` | Scroll down | Half page down in OpenCode session | opencode.lua |
+| `go` | Add range | Add range to prompt (operator, e.g., `goip`) | opencode.lua |
+| `goo` | Add line | Add current line to prompt | opencode.lua |
 
-### Diff Mode (when reviewing AI suggestions)
-
-| Key | Action | Description | Source |
-|-----|--------|-------------|--------|
-| `co` | Choose Ours | Keep current version | avante.lua |
-| `ct` | Choose Theirs | Accept AI suggestion | avante.lua |
-| `ca` | Choose All Theirs | Accept all AI suggestions | avante.lua |
-| `cb` | Choose Both | Keep both versions | avante.lua |
-| `cc` | Choose Cursor | Choose version at cursor | avante.lua |
-| `]x` | Next Conflict | Jump to next conflict | avante.lua |
-| `[x` | Previous Conflict | Jump to previous conflict | avante.lua |
-
-**Note:** `<C-s>` is reserved for Avante chat submit. Use `:w` or `ZZ` to save files (Helix-style).
+**Note:** OpenCode runs in a terminal buffer. Configuration is handled by the OpenCode CLI config file at `~/.config/opencode/opencode.json`. Use `:w` or `ZZ` to save files (Helix-style).
 
 ---
 
@@ -617,18 +590,30 @@ These are deliberate differences from Helix's default behavior:
 
 ---
 
-## Recent Changes (2026-01-02)
+## Recent Changes (2026-01-08)
 
-### Replaced CodeCompanion with Avante
-- **Switched from codecompanion.nvim to avante.nvim** for AI assistance
-- **Removed `<C-s>` save keybinding** to avoid conflict with Avante chat submit
+### Replaced Avante with OpenCode
+- **Switched from avante.nvim to opencode.nvim** for AI assistance
+- OpenCode uses the OpenCode CLI for AI interactions
+- Configure provider/model in `~/.config/opencode/opencode.json`:
+  ```json
+  {
+    "model": "copilot/claude-sonnet-4-5"
+  }
+  ```
+- New keybindings:
+  - `<leader>oo` - Toggle OpenCode terminal
+  - `<leader>oa` - Ask with @this context (auto-submit)
+  - `<leader>ox` - Select/execute action
+  - `<leader>ou` / `<leader>od` - Scroll OpenCode session
+  - `go` - Add range to prompt (operator)
+  - `goo` - Add current line to prompt
 - Use `:w` or `ZZ` to save files (Helix-style)
-- Added comprehensive Avante keybindings:
-  - `<leader>aa` - Open AI chat
-  - `<leader>ae` - Edit selected code
-  - `<leader>ac` - Toggle current buffer in context
-  - Sidebar navigation and diff resolution keymaps
-- Avante uses Claude Sonnet 4.5 via GitHub Copilot integration
+
+### Previous Changes (2026-01-02)
+
+#### Replaced CodeCompanion with Avante (now replaced by OpenCode)
+- Avante has been replaced by OpenCode for a simpler, CLI-based AI experience
 
 ### Previous Changes (2025-12-29)
 
@@ -699,4 +684,4 @@ These are deliberate differences from Helix's default behavior:
 
 ## Last Updated
 
-**2026-01-02** - Replaced CodeCompanion with Avante, removed `<C-s>` save keybinding.
+**2026-01-08** - Replaced Avante with OpenCode for AI assistance.
