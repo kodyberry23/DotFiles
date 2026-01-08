@@ -131,14 +131,48 @@ return {
     vim.lsp.config("rust_analyzer", {
       settings = {
         ["rust-analyzer"] = {
+          cargo = {
+            allFeatures = true,
+            loadOutDirsFromCheck = true,
+            buildScripts = {
+              enable = true,
+            },
+          },
           checkOnSave = {
             enable = true,
-            command = "clippy"
+            command = "clippy",
+          },
+          diagnostics = {
+            enable = true,
+          },
+          procMacro = {
+            enable = true,
+          },
+          files = {
+            exclude = {
+              ".direnv",
+              ".git",
+              ".github",
+              ".gitlab",
+              "bin",
+              "node_modules",
+              "target",
+              "venv",
+              ".venv",
+            },
+            watcher = "client",
+          },
+          -- Optional but useful
+          imports = {
+            granularity = {
+              group = "module",
+              enforce = true,
+            },
+            prefix = "crate",
           },
         },
       },
     })
-
 
     vim.lsp.config("gopls", {
       settings = {
@@ -153,8 +187,56 @@ return {
       settings = {
         yaml = {
           schemas = {
+            -- GitHub Actions (specific path takes precedence)
             ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+            -- Docker Compose (specific filenames take precedence)
+            ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = {
+              "docker-compose.yml",
+              "docker-compose.yaml",
+              "docker-compose.*.yml",
+              "docker-compose.*.yaml",
+              "compose.yml",
+              "compose.yaml",
+            },
+            -- Kubernetes (specific filenames take precedence)
+            ["https://json.schemastore.org/kustomization.json"] = "kustomization.yaml",
+            ["https://json.schemastore.org/chart.json"] = "Chart.yaml",
+            -- Ansible (specific filenames take precedence)
+            ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook"] = {
+              "playbook.yml",
+              "playbook.yaml",
+              "site.yml",
+              "site.yaml",
+            },
+            -- GitLab CI - broad patterns for templates and all other YAML files
+            ["https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json"] = {
+              ".gitlab-ci.yml",
+              ".gitlab-ci.yaml",
+              ".gitlab/*.yml",
+              ".gitlab/*.yaml",
+              ".gitlab/**/*.yml",
+              ".gitlab/**/*.yaml",
+              "ci/*.yml",
+              "ci/*.yaml",
+              "ci/**/*.yml",
+              "ci/**/*.yaml",
+              "templates/*.yml",
+              "templates/*.yaml",
+              "templates/**/*.yml",
+              "templates/**/*.yaml",
+              -- Catch-all for remaining YAML files (GitLab as default)
+              "*.yml",
+              "*.yaml",
+            },
           },
+          -- Disable schemaStore since we want GitLab as default for unmatched files
+          schemaStore = {
+            enable = false,
+          },
+          validate = true,
+          format = { enable = true },
+          hover = true,
+          completion = true,
         },
       },
     })
@@ -192,22 +274,36 @@ return {
     })
 
     vim.lsp.config("vtsls", {
+      filetypes = {
+        "javascript",
+        "javascriptreact",
+        "javascript.jsx",
+        "typescript",
+        "typescriptreact",
+        "typescript.tsx",
+      },
       settings = {
+        complete_function_calls = true,
         vtsls = {
+          enableMoveToFileCodeAction = true,
           autoUseWorkspaceTsdk = true,
           experimental = {
+            maxInlayHintLength = 30,
             completion = {
               enableServerSideFuzzyMatch = true,
             },
-            maxInlayHintLength = 30,
           },
         },
         typescript = {
           tsserver = {
             maxTsServerMemory = 8192,
           },
+          updateImportsOnFileMove = { enabled = "always" },
+          suggest = {
+            completeFunctionCalls = true,
+          },
           inlayHints = {
-            parameterNames = { enabled = "all" },
+            parameterNames = { enabled = "literals" },
             parameterTypes = { enabled = true },
             variableTypes = { enabled = true },
             propertyDeclarationTypes = { enabled = true },
@@ -218,11 +314,16 @@ return {
             includeCompletionsForModuleExports = true,
             includeCompletionsWithSnippetText = true,
             includeCompletionsWithInsertText = true,
+            importModuleSpecifierPreference = "non-relative",
           },
         },
         javascript = {
+          updateImportsOnFileMove = { enabled = "always" },
+          suggest = {
+            completeFunctionCalls = true,
+          },
           inlayHints = {
-            parameterNames = { enabled = "all" },
+            parameterNames = { enabled = "literals" },
             parameterTypes = { enabled = true },
             variableTypes = { enabled = true },
             propertyDeclarationTypes = { enabled = true },
@@ -233,10 +334,16 @@ return {
       },
     })
 
+    vim.lsp.config("angularls", {
+      filetypes = { "typescript", "html", "typescriptreact", "typescript.tsx", "htmlangular" },
+      root_markers = { "angular.json", "project.json" },
+    })
+
     -- Enable all servers
     vim.lsp.enable({
       "lua_ls",
       "vtsls",
+      "angularls",
       "html",
       "cssls",
       "tailwindcss",
