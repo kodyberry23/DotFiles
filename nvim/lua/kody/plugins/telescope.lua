@@ -7,8 +7,8 @@ return {
   },
   keys = {
     -- Helix-style picker mappings
-    { "<leader>f", "<cmd>Telescope find_files<cr>", desc = "Find files" },
-    { "<leader>F", "<cmd>Telescope find_files hidden=true<cr>", desc = "Find files (hidden)" },
+    { "<leader>f", "<cmd>Telescope find_files hidden=true<cr>", desc = "Find files" },
+    { "<leader>F", "<cmd>Telescope find_files no_ignore=true hidden=true<cr>", desc = "Find files (all, incl. gitignored)" },
     { "<leader>bp", "<cmd>Telescope buffers<cr>", desc = "Buffer picker" },
     { "<leader>j", "<cmd>Telescope jumplist<cr>", desc = "Jumplist" },
     { "<leader>g", "<cmd>Telescope git_status<cr>", desc = "Changed files" },

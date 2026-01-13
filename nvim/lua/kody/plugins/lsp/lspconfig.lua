@@ -19,6 +19,8 @@ return {
         text = signs,
       },
       virtual_text = {
+        -- Only show virtual text on the current cursor line
+        current_line = true,
         format = function(diagnostic)
           -- Truncate long messages for inline display
           local message = diagnostic.message
@@ -33,7 +35,7 @@ return {
       float = {
         border = "rounded",
         source = true,
-        max_width = 80, -- Optional: limit width of floating window
+        max_width = 80,
       },
     })
 
@@ -73,15 +75,12 @@ return {
         opts.desc = "Smart rename"
         vim.keymap.set("n", "<leader>r", vim.lsp.buf.rename, opts)
 
-        -- <leader>dl: Show line diagnostics
         opts.desc = "Show line diagnostics"
         vim.keymap.set("n", "<leader>dl", vim.diagnostic.open_float, opts)
 
         opts.desc = "Show documentation for what is under cursor"
         vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
 
-        -- Ctrl-k: Signature help (Helix uses Ctrl-k for kill-to-line-end in insert mode)
-        -- We prefer LSP signature help as it's more useful in practice
         opts.desc = "Signature help"
         vim.keymap.set("n", "<C-k>", vim.lsp.buf.signature_help, opts)
 
@@ -98,15 +97,6 @@ return {
         vim.keymap.set("n", "<leader>rs", ":LspRestart<CR>", opts)
       end,
     })
-
-    -- Optional: Auto-show diagnostics on CursorHold
-    -- Note: This may be intrusive. Uncomment if desired.
-    -- If using this, consider increasing updatetime in options.lua (e.g., to 300)
-    -- vim.api.nvim_create_autocmd("CursorHold", {
-    --   callback = function()
-    --     vim.diagnostic.open_float(nil, { focus = false })
-    --   end,
-    -- })
 
     -- Capabilities
     local cmp_nvim_lsp = require("cmp_nvim_lsp")
@@ -160,9 +150,8 @@ return {
               "venv",
               ".venv",
             },
-            watcher = "client",
+            watcher = "server",
           },
-          -- Optional but useful
           imports = {
             granularity = {
               group = "module",
@@ -187,9 +176,7 @@ return {
       settings = {
         yaml = {
           schemas = {
-            -- GitHub Actions (specific path takes precedence)
             ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
-            -- Docker Compose (specific filenames take precedence)
             ["https://raw.githubusercontent.com/compose-spec/compose-spec/master/schema/compose-spec.json"] = {
               "docker-compose.yml",
               "docker-compose.yaml",
@@ -198,17 +185,14 @@ return {
               "compose.yml",
               "compose.yaml",
             },
-            -- Kubernetes (specific filenames take precedence)
             ["https://json.schemastore.org/kustomization.json"] = "kustomization.yaml",
             ["https://json.schemastore.org/chart.json"] = "Chart.yaml",
-            -- Ansible (specific filenames take precedence)
             ["https://raw.githubusercontent.com/ansible/ansible-lint/main/src/ansiblelint/schemas/ansible.json#/$defs/playbook"] = {
               "playbook.yml",
               "playbook.yaml",
               "site.yml",
               "site.yaml",
             },
-            -- GitLab CI - broad patterns for templates and all other YAML files
             ["https://gitlab.com/gitlab-org/gitlab/-/raw/master/app/assets/javascripts/editor/schema/ci.json"] = {
               ".gitlab-ci.yml",
               ".gitlab-ci.yaml",
@@ -224,12 +208,10 @@ return {
               "templates/*.yaml",
               "templates/**/*.yml",
               "templates/**/*.yaml",
-              -- Catch-all for remaining YAML files (GitLab as default)
               "*.yml",
               "*.yaml",
             },
           },
-          -- Disable schemaStore since we want GitLab as default for unmatched files
           schemaStore = {
             enable = false,
           },

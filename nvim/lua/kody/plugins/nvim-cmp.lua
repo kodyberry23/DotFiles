@@ -81,11 +81,13 @@ return {
 
     -- Command-line completion for `/` and `?` search
     cmp.setup.cmdline({ "/", "?" }, {
+      completion = { completeopt = "menu,menuone,noselect" },
       mapping = cmp.mapping.preset.cmdline({
         ["<Tab>"] = { c = cmp.mapping.select_next_item() },
         ["<S-Tab>"] = { c = cmp.mapping.select_prev_item() },
         ["<C-n>"] = { c = cmp.mapping.select_next_item() },
-        ["<CR>"] = { c = cmp.mapping.confirm({ select = false }) },
+        ["<C-e>"] = { c = cmp.mapping.abort() },
+        -- No <CR> mapping - Enter executes your search, use Tab to select completions
       }),
       sources = {
         { name = "buffer" },
