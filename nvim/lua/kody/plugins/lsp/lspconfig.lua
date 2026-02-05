@@ -134,9 +134,13 @@ return {
           },
           diagnostics = {
             enable = true,
+            disabled = { "inactive-code", "unlinked-file" },
           },
           procMacro = {
             enable = true,
+            attributes = {
+              enable = true,
+            },
           },
           files = {
             exclude = {
@@ -158,6 +162,68 @@ return {
               enforce = true,
             },
             prefix = "crate",
+          },
+          inlayHints = {
+            bindingModeHints = {
+              enable = true,
+            },
+            chainingHints = {
+              enable = true,
+            },
+            closingBraceHints = {
+              enable = true,
+              minLines = 10,
+            },
+            closureReturnTypeHints = {
+              enable = "with_block",
+            },
+            lifetimeElisionHints = {
+              enable = "skip_trivial",
+              useParameterNames = true,
+            },
+            parameterHints = {
+              enable = true,
+            },
+            typeHints = {
+              enable = true,
+              hideClosureInitialization = false,
+              hideNamedConstructor = false,
+            },
+            maxLength = 25,
+          },
+          lens = {
+            enable = true,
+            implementations = {
+              enable = true,
+            },
+            references = {
+              adt = {
+                enable = true,
+              },
+              enumVariant = {
+                enable = true,
+              },
+              method = {
+                enable = true,
+              },
+              trait = {
+                enable = true,
+              },
+            },
+            run = {
+              enable = true,
+            },
+          },
+          hover = {
+            actions = {
+              enable = true,
+              references = {
+                enable = true,
+              },
+            },
+            documentation = {
+              enable = true,
+            },
           },
         },
       },
@@ -255,71 +321,83 @@ return {
       },
     })
 
-    vim.lsp.config("vtsls", {
-      filetypes = {
-        "javascript",
-        "javascriptreact",
-        "javascript.jsx",
-        "typescript",
-        "typescriptreact",
-        "typescript.tsx",
+vim.lsp.config("vtsls", {
+  filetypes = {
+    "javascript",
+    "javascriptreact",
+    "javascript.jsx",
+    "typescript",
+    "typescriptreact",
+    "typescript.tsx",
+  },
+  settings = {
+    complete_function_calls = true,
+    vtsls = {
+      enableMoveToFileCodeAction = true,
+      autoUseWorkspaceTsdk = true,
+      experimental = {
+        maxInlayHintLength = 30,
+        completion = {
+          enableServerSideFuzzyMatch = true,
+        },
       },
-      settings = {
-        complete_function_calls = true,
-        vtsls = {
-          enableMoveToFileCodeAction = true,
-          autoUseWorkspaceTsdk = true,
-          experimental = {
-            maxInlayHintLength = 30,
-            completion = {
-              enableServerSideFuzzyMatch = true,
-            },
-          },
-        },
-        typescript = {
-          tsserver = {
-            maxTsServerMemory = 8192,
-          },
-          updateImportsOnFileMove = { enabled = "always" },
-          suggest = {
-            completeFunctionCalls = true,
-          },
-          inlayHints = {
-            parameterNames = { enabled = "literals" },
-            parameterTypes = { enabled = true },
-            variableTypes = { enabled = true },
-            propertyDeclarationTypes = { enabled = true },
-            functionLikeReturnTypes = { enabled = true },
-            enumMemberValues = { enabled = true },
-          },
-          preferences = {
-            includeCompletionsForModuleExports = true,
-            includeCompletionsWithSnippetText = true,
-            includeCompletionsWithInsertText = true,
-            importModuleSpecifierPreference = "non-relative",
-          },
-        },
-        javascript = {
-          updateImportsOnFileMove = { enabled = "always" },
-          suggest = {
-            completeFunctionCalls = true,
-          },
-          inlayHints = {
-            parameterNames = { enabled = "literals" },
-            parameterTypes = { enabled = true },
-            variableTypes = { enabled = true },
-            propertyDeclarationTypes = { enabled = true },
-            functionLikeReturnTypes = { enabled = true },
-            enumMemberValues = { enabled = true },
+      tsserver = {
+        globalPlugins = {
+          {
+            name = "@angular/language-server",
+            location = vim.fn.stdpath("data") .. "/mason/packages/angular-language-server/node_modules/@angular/language-server",
+            enableForWorkspaceTypeScriptVersions = false,
           },
         },
       },
-    })
-
-    vim.lsp.config("angularls", {
-      filetypes = { "typescript", "html", "typescriptreact", "typescript.tsx", "htmlangular" },
-      root_markers = { "angular.json", "project.json" },
-    })
+    },
+    typescript = {
+      tsserver = {
+        maxTsServerMemory = 8192,
+      },
+      updateImportsOnFileMove = { enabled = "always" },
+      suggest = {
+        completeFunctionCalls = true,
+      },
+      inlayHints = {
+        parameterNames = { enabled = "literals" },
+        parameterTypes = { enabled = true },
+        variableTypes = { enabled = true },
+        propertyDeclarationTypes = { enabled = true },
+        functionLikeReturnTypes = { enabled = true },
+        enumMemberValues = { enabled = true },
+      },
+      preferences = {
+        includeCompletionsForModuleExports = true,
+        includeCompletionsWithSnippetText = true,
+        includeCompletionsWithInsertText = true,
+        importModuleSpecifierPreference = "non-relative",
+        includePackageJsonAutoImports = "on",
+        quotePreference = "auto",
+        jsxAttributeCompletionStyle = "auto",
+      },
+    },
+    javascript = {
+      updateImportsOnFileMove = { enabled = "always" },
+      suggest = {
+        completeFunctionCalls = true,
+      },
+      inlayHints = {
+        parameterNames = { enabled = "literals" },
+        parameterTypes = { enabled = true },
+        variableTypes = { enabled = true },
+        propertyDeclarationTypes = { enabled = true },
+        functionLikeReturnTypes = { enabled = true },
+        enumMemberValues = { enabled = true },
+      },
+      preferences = {
+        includePackageJsonAutoImports = "on",
+        quotePreference = "auto",
+        jsxAttributeCompletionStyle = "auto",
+      },
+    },
+  },
+})
 
     -- Enable all servers
     vim.lsp.enable({

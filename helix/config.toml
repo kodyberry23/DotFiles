@@ -1,0 +1,19 @@
+theme = "tokyonight_moon_transparent"
+
+[editor]
+[editor.lsp]
+display-messages = true
+display-inlay-hints = true
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[keys.normal]
+# Resolve Alt-x conflict with Zellij (Zellij uses Alt-x for close pane)
+"A-x" = "no_op"  # Let Zellij handle Alt-x
+"A-S-x" = "shrink_to_line_bounds"  # Move Helix's shrink to Alt-Shift-x
+
+# Convenience keybindings
+"C-s" = ":w"  # Quick save with Ctrl-s

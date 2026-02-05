@@ -1,0 +1,40 @@
+# Tokyo Night Moon theme with transparent backgrounds
+# Inherits from built-in tokyonight_moon and overrides backgrounds
+
+inherits = "tokyonight_moon"
+
+# Make main editor backgrounds transparent
+"ui.background" = { }
+"ui.gutter" = { }
+
+# Keep line numbers visible without background
+"ui.linenr" = { fg = "fg_gutter" }
+"ui.linenr.selected" = { fg = "fg" }
+
+# Keep statusline backgrounds for readability
+"ui.statusline" = { fg = "fg", bg = "bg_statusline" }
+"ui.statusline.inactive" = { fg = "fg_dark", bg = "bg_statusline" }
+
+# Keep cursor backgrounds for visibility
+"ui.cursor" = { fg = "bg", bg = "fg" }
+"ui.cursor.primary" = { fg = "bg", bg = "cyan" }
+"ui.cursor.match" = { fg = "orange", modifiers = ["bold"] }
+
+# Keep menu backgrounds for usability
+"ui.menu" = { fg = "fg", bg = "bg_popup" }
+"ui.menu.selected" = { fg = "bg", bg = "cyan" }
+"ui.menu.scroll" = { fg = "fg", bg = "bg_highlight" }
+
+# Keep selection background for visibility
+"ui.selection" = { bg = "bg_visual" }
+
+# Make popups and help transparent
+"ui.popup" = { fg = "fg" }
+"ui.help" = { fg = "fg" }
+"ui.window" = { fg = "fg_dark" }
+
+# Keep diagnostic backgrounds for visibility
+"diagnostic.error" = { underline = { color = "error", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "warning", style = "curl" } }
+"diagnostic.info" = { underline = { color = "info", style = "curl" } }
+"diagnostic.hint" = { underline = { color = "hint", style = "curl" } }

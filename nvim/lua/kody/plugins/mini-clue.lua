@@ -79,6 +79,7 @@ return {
         { mode = "n", keys = "<Leader>l", desc = "+lsp/format" },
         { mode = "n", keys = "<Leader>d", desc = "+diagnostics" },
         { mode = "n", keys = "<Leader>o", desc = "+opencode" },
+        { mode = "n", keys = "<Leader>c", desc = "+claude" },
 
         -- Unimpaired navigation
         { mode = "n", keys = "[", desc = "+prev" },

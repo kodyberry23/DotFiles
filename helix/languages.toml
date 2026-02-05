@@ -1,0 +1,152 @@
+# Helix language server configuration
+# This file configures LSP servers and language-specific settings
+
+# File watcher LSP for auto-reloading files on external changes
+[language-server.fs_watcher_lsp]
+command = "fs_watcher_lsp"
+args = []
+
+# Rust Analyzer configuration
+[language-server.rust-analyzer]
+command = "rust-analyzer"
+config.cargo.features = "all"
+config.cargo.loadOutDirsFromCheck = true
+config.cargo.buildScripts.enable = true
+config.checkOnSave.enable = true
+config.checkOnSave.command = "clippy"
+config.procMacro.enable = true
+config.procMacro.attributes.enable = true
+
+# Disable dimming of inactive/unlinked code
+config.diagnostics.disabled = ["inactive-code", "unlinked-file"]
+
+# Inlay hints configuration
+config.inlayHints.bindingModeHints.enable = true
+config.inlayHints.chainingHints.enable = true
+config.inlayHints.closingBraceHints.enable = true
+config.inlayHints.closingBraceHints.minLines = 10
+config.inlayHints.closureReturnTypeHints.enable = "with_block"
+config.inlayHints.lifetimeElisionHints.enable = "skip_trivial"
+config.inlayHints.lifetimeElisionHints.useParameterNames = true
+config.inlayHints.parameterHints.enable = true
+config.inlayHints.typeHints.enable = true
+config.inlayHints.maxLength = 25
+
+# Code lens configuration
+config.lens.enable = true
+config.lens.implementations.enable = true
+config.lens.references.adt.enable = true
+config.lens.references.enumVariant.enable = true
+config.lens.references.method.enable = true
+config.lens.references.trait.enable = true
+config.lens.run.enable = true
+
+# Hover actions
+config.hover.actions.enable = true
+config.hover.actions.references.enable = true
+config.hover.documentation.enable = true
+
+# Files to exclude from indexing
+config.files.exclude = [
+  ".direnv",
+  ".git",
+  ".github",
+  ".gitlab",
+  "bin",
+  "node_modules",
+  "target",
+  "venv",
+  ".venv",
+]
+
+# Language configurations with fs_watcher_lsp for auto-reload
+
+[[language]]
+name = "rust"
+language-servers = ["rust-analyzer", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "python"
+language-servers = ["pylsp", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "go"
+language-servers = ["gopls", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "elixir"
+language-servers = ["elixir-ls", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "heex"
+language-servers = ["elixir-ls", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "erlang"
+language-servers = ["erlang-ls", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "javascript"
+language-servers = ["typescript-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "typescript"
+language-servers = ["typescript-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "tsx"
+language-servers = ["typescript-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "jsx"
+language-servers = ["typescript-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "json"
+language-servers = ["vscode-json-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "yaml"
+language-servers = ["yaml-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "html"
+language-servers = ["vscode-html-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "css"
+language-servers = ["vscode-css-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "bash"
+language-servers = ["bash-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "markdown"
+language-servers = ["marksman", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "lua"
+language-servers = ["lua-language-server", "fs_watcher_lsp"]
+auto-format = true
+
+[[language]]
+name = "java"
+language-servers = ["jdtls", "fs_watcher_lsp"]
+auto-format = true
