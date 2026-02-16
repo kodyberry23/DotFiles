@@ -485,6 +485,42 @@ This allows `%` to be remapped to select-all (Helix style). The original bracket
 | `<A-j>` | `ZellijNavigateDown` | Navigate down (zellij) | zellij-nav.lua |
 | `<A-k>` | `ZellijNavigateUp` | Navigate up (zellij) | zellij-nav.lua |
 | `<A-l>` | `ZellijNavigateRight` | Navigate right (zellij) | zellij-nav.lua |
+| `Ctrl s` | `SwitchToMode "Scroll"` | Enter scroll mode (from normal or locked) | config.kdl |
+
+---
+
+## Zellij Scroll Mode
+
+**Enter with `Ctrl s` from normal or locked mode. Exit with `Ctrl s`, `Esc`, or `Ctrl c`.**
+
+| Key | Action | Description | Source |
+|-----|--------|-------------|--------|
+| `j` / `Down` | ScrollDown | Scroll down one line | config.kdl |
+| `k` / `Up` | ScrollUp | Scroll up one line | config.kdl |
+| `d` | HalfPageScrollDown | Scroll half page down | config.kdl |
+| `u` | HalfPageScrollUp | Scroll half page up | config.kdl |
+| `Ctrl f` / `PageDown` / `l` | PageScrollDown | Scroll full page down | config.kdl |
+| `Ctrl b` / `PageUp` / `h` | PageScrollUp | Scroll full page up | config.kdl |
+| `e` | EditScrollback | Open scrollback in `$EDITOR` | config.kdl |
+| `s` | EnterSearch | Start typing a search query | config.kdl |
+| `Ctrl c` | ScrollToBottom | Jump to bottom and exit | config.kdl |
+| `Ctrl s` / `Esc` | SwitchToMode "Normal" | Exit scroll mode | config.kdl |
+
+## Zellij Search Mode
+
+**Enter from scroll mode by pressing `s`, type your query, press `Enter`.**
+
+| Key | Action | Description | Source |
+|-----|--------|-------------|--------|
+| `n` | Search "down" | Next search match | config.kdl |
+| `p` | Search "up" | Previous search match | config.kdl |
+| `c` | Toggle CaseSensitivity | Toggle case-sensitive search | config.kdl |
+| `w` | Toggle Wrap | Toggle search wrap | config.kdl |
+| `o` | Toggle WholeWord | Toggle whole-word search | config.kdl |
+| `j/k/d/u/Ctrl f/Ctrl b` | (same as scroll) | All scroll bindings also work | config.kdl |
+| `Ctrl c` / `Esc` | Cancel search | Back to scroll/normal | config.kdl |
+
+**Note:** `Ctrl s` enters scroll mode from both normal and locked mode, so you can scroll pane history even while nvim is running (autolock = locked mode).
 
 ---
 

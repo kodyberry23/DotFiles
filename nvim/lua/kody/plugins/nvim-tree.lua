@@ -48,6 +48,13 @@ return {
         
         -- Remove 'ge' mapping (Copy Basename) to avoid conflicts with Helix-style ge (go to end)
         vim.keymap.del("n", "ge", { buffer = bufnr })
+
+        -- Ensure seamless Alt-based navigation in/out of nvim-tree and Zellij panes
+        local opts = { buffer = bufnr, silent = true, noremap = true }
+        vim.keymap.set("n", "<A-h>", "<cmd>ZellijNavigateLeft<CR>", vim.tbl_extend("force", opts, { desc = "Navigate left" }))
+        vim.keymap.set("n", "<A-j>", "<cmd>ZellijNavigateDown<CR>", vim.tbl_extend("force", opts, { desc = "Navigate down" }))
+        vim.keymap.set("n", "<A-k>", "<cmd>ZellijNavigateUp<CR>", vim.tbl_extend("force", opts, { desc = "Navigate up" }))
+        vim.keymap.set("n", "<A-l>", "<cmd>ZellijNavigateRight<CR>", vim.tbl_extend("force", opts, { desc = "Navigate right" }))
       end,
     })
 

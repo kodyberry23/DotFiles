@@ -83,17 +83,8 @@ keymap.set("n", "<leader>ul", "<cmd>set list!<CR>", { desc = "Toggle listchars" 
 -- WINDOW MODE (Ctrl-w or space+w)
 -- ============================================================================
 
--- Window navigation (Ctrl-hjkl)
-keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move to left window" })
-keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move to window below" })
-keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move to window above" })
-keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move to right window" })
-
--- Terminal mode window navigation (for OpenCode and other terminal buffers)
-keymap.set("t", "<C-h>", "<C-\\><C-n><C-w>h", { desc = "Move to left window" })
-keymap.set("t", "<C-j>", "<C-\\><C-n><C-w>j", { desc = "Move to window below" })
-keymap.set("t", "<C-k>", "<C-\\><C-n><C-w>k", { desc = "Move to window above" })
-keymap.set("t", "<C-l>", "<C-\\><C-n><C-w>l", { desc = "Move to right window" })
+-- Directional pane navigation is handled via Alt-h/j/k/l through zellij-nav.nvim
+-- for seamless movement between Neovim windows and Zellij panes.
 
 -- Window splits (helix: Ctrl-w + s/v)
 keymap.set("n", "<leader>wv", "<cmd>vsplit<CR>", { desc = "Vertical split" })
