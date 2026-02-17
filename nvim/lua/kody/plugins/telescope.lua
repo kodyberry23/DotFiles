@@ -14,14 +14,24 @@ return {
     { "<leader>g", "<cmd>Telescope git_status<cr>", desc = "Changed files" },
     { "<leader>s", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
     { "<leader>S", "<cmd>Telescope lsp_workspace_symbols<cr>", desc = "Workspace symbols" },
-    { "<leader>/", "<cmd>Telescope live_grep<cr>", desc = "Global search" },
+    {
+      "<leader>/",
+      function()
+        require("telescope.builtin").live_grep({
+          additional_args = function()
+            return { "--hidden", "--glob", "!.git/*" }
+          end,
+        })
+      end,
+      desc = "Global search",
+    },
     { "<leader>?", "<cmd>Telescope commands<cr>", desc = "Command palette" },
     { "<leader>dd", "<cmd>Telescope diagnostics bufnr=0<cr>", desc = "Document diagnostics" },
     { "<leader>dw", "<cmd>Telescope diagnostics<cr>", desc = "Workspace diagnostics" },
   },
   opts = {
     defaults = {
-      file_ignore_patterns = { "node_modules", ".git" },
+      file_ignore_patterns = { "node_modules", "^%.git/" },
     },
     extensions = {
       fzf = {

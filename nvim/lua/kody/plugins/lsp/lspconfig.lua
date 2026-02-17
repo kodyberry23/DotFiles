@@ -250,6 +250,8 @@ return {
               "docker-compose.*.yaml",
               "compose.yml",
               "compose.yaml",
+              "*docker*.yml",
+              "*docker*.yaml",
             },
             ["https://json.schemastore.org/kustomization.json"] = "kustomization.yaml",
             ["https://json.schemastore.org/chart.json"] = "Chart.yaml",
@@ -274,8 +276,6 @@ return {
               "templates/*.yaml",
               "templates/**/*.yml",
               "templates/**/*.yaml",
-              "*.yml",
-              "*.yaml",
             },
           },
           schemaStore = {
@@ -297,17 +297,28 @@ return {
       },
     })
 
+    local mason_elixirls = vim.fn.stdpath("data") .. "/mason/bin/elixir-ls"
     vim.lsp.config("elixirls", {
-      cmd = { "elixir-ls" },
+      cmd = vim.fn.executable(mason_elixirls) == 1 and { mason_elixirls } or { "elixir-ls" },
       filetypes = { "elixir", "eelixir", "heex" },
       settings = {
         elixirLS = {
+          mixEnv = vim.env.MIX_ENV,
+          mixTarget = vim.env.MIX_TARGET,
           dialyzerEnabled = false,
           fetchDeps = false,
           enableTestLenses = true,
           suggestSpecs = true,
         },
       },
+    })
+
+    local mason_erlangls = vim.fn.stdpath("data") .. "/mason/bin/erlang_ls"
+    local erlangls_cmd = vim.fn.executable(mason_erlangls) == 1 and mason_erlangls
+      or (vim.fn.executable("erlang_ls") == 1 and "erlang_ls" or "erlangls")
+    vim.lsp.config("erlangls", {
+      cmd = { erlangls_cmd },
+      filetypes = { "erlang" },
     })
 
     vim.lsp.config("tailwindcss", {
