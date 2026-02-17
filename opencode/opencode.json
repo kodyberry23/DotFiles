@@ -9,6 +9,17 @@
   "permission": {
     "edit": "ask"
   },
+  "mcp": {
+    "playwright": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@playwright/mcp@latest"
+      ],
+      "enabled": true
+    }
+  },
   "tui": {
     "scroll_acceleration": {
       "enabled": true
