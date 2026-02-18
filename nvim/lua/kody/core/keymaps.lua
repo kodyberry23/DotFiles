@@ -18,6 +18,9 @@ local keymap = vim.keymap
 -- Clear search highlights (helix: Escape clears)
 keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Clear highlights" })
 
+-- Disable 's' in normal mode (only used in VM multi-cursor mode)
+keymap.set("n", "s", "<Nop>", { desc = "Disable substitute command" })
+
 -- Exit insert mode without moving cursor back
 keymap.set("i", "<Esc>", "<Esc>`^", { desc = "Exit insert mode, keep cursor position" })
 
