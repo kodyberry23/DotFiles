@@ -1,0 +1,40 @@
+# Cyberdream theme with transparent backgrounds
+# Inherits from built-in cyberdream and overrides backgrounds
+
+inherits = "cyberdream"
+
+# Make main editor backgrounds transparent
+"ui.background" = { }
+"ui.gutter" = { }
+
+# Keep line numbers visible without background
+"ui.linenr" = { fg = "grey" }
+"ui.linenr.selected" = { fg = "fg" }
+
+# Keep statusline backgrounds for readability
+"ui.statusline" = { fg = "fg", bg = "bg_highlight" }
+"ui.statusline.inactive" = { fg = "grey", bg = "bg_alt" }
+
+# Keep cursor backgrounds for visibility
+"ui.cursor" = { fg = "bg", bg = "fg" }
+"ui.cursor.primary" = { fg = "bg", bg = "cyan" }
+"ui.cursor.match" = { fg = "orange", modifiers = ["bold"] }
+
+# Keep menu backgrounds for usability
+"ui.menu" = { fg = "fg", bg = "bg_alt" }
+"ui.menu.selected" = { fg = "bg", bg = "cyan" }
+"ui.menu.scroll" = { fg = "fg", bg = "bg_highlight" }
+
+# Keep selection background for visibility
+"ui.selection" = { bg = "bg_highlight" }
+
+# Make popups and help transparent
+"ui.popup" = { fg = "fg" }
+"ui.help" = { fg = "fg" }
+"ui.window" = { fg = "grey" }
+
+# Keep diagnostic backgrounds for visibility
+"diagnostic.error" = { underline = { color = "red", style = "curl" } }
+"diagnostic.warning" = { underline = { color = "yellow", style = "curl" } }
+"diagnostic.info" = { underline = { color = "blue", style = "curl" } }
+"diagnostic.hint" = { underline = { color = "cyan", style = "curl" } }

@@ -1,32 +1,20 @@
 return {
-  "folke/tokyonight.nvim",
-  lazy = false,    -- MUST be false to load at startup
-  priority = 1000, -- Load before all other plugins
-  opts = {
-    style = "storm",
-    transparent = true,
-    terminal_colors = true,
-    styles = {
-      sidebars = "transparent",
-      floats = "transparent",
-    },
-    plugins = {
-      auto = true,
-    },
-    on_highlights = function(hl, c)
-      hl.WinSeparator = {
-        fg = "#7AA2F7",
-        bg = "NONE",
-      }
-      -- Ensure DiffAdd/DiffText also have backgrounds (used by diff tools)
-      hl.DiffAdd = { bg = "#2b485a" }    -- Added lines
-      hl.DiffText = { bg = "#394b70" }   -- Changed text within a line
-      hl.DiffChange = { bg = "#272d43" } -- Changed lines
-      hl.DiffDelete = { bg = "#52313f" } -- Deleted lines
-    end,
-  },
-  config = function(_, opts)
-    require("tokyonight").setup(opts)
-    vim.cmd.colorscheme("tokyonight-storm")
+  "scottmckendry/cyberdream.nvim",
+  lazy = false,
+  priority = 1000,
+  config = function()
+    require("cyberdream").setup({
+      transparent = true,
+      italic_comments = true,
+      hide_fillchars = false,
+      borderless_pickers = { telescope = true, snacks = true },
+      terminal_colors = true,
+      cache = true,
+    })
+    vim.cmd("colorscheme cyberdream")
+
+    -- Give WinSeparator a bg matching the statusline so the blue vertical
+    -- line doesn't bleed through at the junction with laststatus=3
+    vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#5ea1ff", bg = "#1e2124" })
   end,
 }

@@ -3,7 +3,7 @@ return {
   version = "*",
   lazy = false,
   dependencies = {
-    "nvim-tree/nvim-web-devicons",
+    "echasnovski/mini.icons",
   },
   keys = {
     { "<leader>ee", "<cmd>NvimTreeToggle<CR>",   desc = "Toggle explorer" },
@@ -61,6 +61,8 @@ return {
     vim.api.nvim_set_hl(0, "NvimTreeNormal", { bg = "NONE" })
     vim.api.nvim_set_hl(0, "NvimTreeNormalNC", { bg = "NONE" })
     vim.api.nvim_set_hl(0, "NvimTreeEndOfBuffer", { bg = "NONE" })
-    vim.api.nvim_set_hl(0, "NvimTreeWinSeparator", { fg = "#7AA2F7", bg = "NONE" })
+    vim.api.nvim_set_hl(0, "NvimTreeWinSeparator", { fg = "#5ea1ff", bg = "#1e2124" })
+    vim.api.nvim_set_hl(0, "NvimTreeStatusLine", { fg = "#1e2124", bg = "#1e2124" })
+    vim.api.nvim_set_hl(0, "NvimTreeStatusLineNC", { fg = "#1e2124", bg = "#1e2124" })
   end,
 }

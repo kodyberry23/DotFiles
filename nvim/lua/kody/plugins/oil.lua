@@ -1,7 +1,7 @@
 return {
   "stevearc/oil.nvim",
   dependencies = {
-    "nvim-tree/nvim-web-devicons",
+    "echasnovski/mini.icons",
     "refractalize/oil-git-status.nvim",
     "JezerM/oil-lsp-diagnostics.nvim",
   },

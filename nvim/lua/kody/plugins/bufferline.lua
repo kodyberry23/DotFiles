@@ -1,7 +1,7 @@
 return {
   "akinsho/bufferline.nvim",
   event = "VeryLazy",
-  dependencies = "nvim-tree/nvim-web-devicons",
+  dependencies = "echasnovski/mini.icons",
   config = function()
     require("bufferline").setup({
       options = {
@@ -19,12 +19,13 @@ return {
       },
       highlights = {
         buffer_selected = {
-          fg = "#c0caf5",  -- Brighter text color for active buffer
+          fg = "#ffffff",  -- Brighter text color for active buffer
+          bg = "#16181a",
           bold = true,
           italic = false,
         },
         offset_separator = {
-          fg = "#7AA2F7",
+          fg = "#5ea1ff",
           bg = "NONE",
         },
       },

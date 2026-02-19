@@ -1,5 +1,5 @@
 # By default Reload config with shft + cmd + , 
-config-file = themes/rosepine
+config-file = themes/cyberdream
 background-opacity = 0.88
 background-blur-radius = 25
 maximize = true
@@ -10,7 +10,8 @@ cursor-style-blink = false
 cursor-color = cell-foreground
 cursor-text = cell-background
 
-macos-titlebar-style = transparent
+macos-titlebar-style = tabs
+macos-titlebar-proxy-icon = hidden
 macos-option-as-alt = true
 mouse-hide-while-typing = true
 
