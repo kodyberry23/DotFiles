@@ -51,7 +51,7 @@ opt.backspace = "indent,eol,start"
 opt.scrolloff = 10 -- Keep 10 lines above/below cursor
 
 -- Update time (faster completion)
-opt.updatetime = 50
+opt.updatetime = 250
 
 -- Auto-reload files changed outside of vim
 opt.autoread = true

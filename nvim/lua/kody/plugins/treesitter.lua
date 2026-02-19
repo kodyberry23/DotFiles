@@ -33,7 +33,12 @@ return {
         "json", "yaml", "markdown",
         "Avante",
       },
-      callback = function()
+      callback = function(args)
+        -- Skip treesitter for large files (>100KB)
+        local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(args.buf))
+        if ok and stats and stats.size > 100 * 1024 then
+          return
+        end
         vim.treesitter.start()
         -- Enable treesitter-based indentation (experimental)
         vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"

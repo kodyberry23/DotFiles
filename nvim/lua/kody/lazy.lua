@@ -20,5 +20,16 @@ require("lazy").setup({
     { import = "kody.plugins" },
     { import = "kody.plugins.lsp" },
   },
-  checker = { enabled = true },
+  checker = { enabled = true, notify = false },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "gzip",
+        "tarPlugin",
+        "tohtml",
+        "tutor",
+        "zipPlugin",
+      },
+    },
+  },
 })

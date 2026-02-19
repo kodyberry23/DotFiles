@@ -14,6 +14,14 @@ return {
     vim.api.nvim_set_hl(0, "CmpGhostText", { link = "Comment", default = true })
 
     return {
+      enabled = function()
+        local context = require("cmp.config.context")
+        if vim.api.nvim_get_mode().mode == "c" then
+          return true
+        end
+        return not context.in_treesitter_capture("comment")
+          and not context.in_syntax_group("Comment")
+      end,
       completion = { completeopt = "menu,menuone,noinsert" },
       preselect = cmp.PreselectMode.Item,
       mapping = cmp.mapping.preset.insert({
