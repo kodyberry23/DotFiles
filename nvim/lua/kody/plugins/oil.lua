@@ -50,10 +50,20 @@ return {
         ["<C-r>"] = { "actions.refresh", mode = "n" },
 
         -- Yank/Copy path (Yazi style: y=yank)
-        ["y"] = { 
-          "actions.yank_entry", 
+        ["y"] = {
+          desc = "Copy relative path to clipboard",
+          callback = function()
+            local oil = require("oil")
+            local entry = oil.get_cursor_entry()
+            local dir = oil.get_current_dir()
+            if not entry or not dir then return end
+            local full_path = dir .. entry.name
+            local rel_path = vim.fn.fnamemodify(full_path, ":.")
+            vim.fn.setreg("+", rel_path)
+            vim.fn.setreg('"', rel_path)
+            vim.notify("Copied: " .. rel_path, vim.log.levels.INFO)
+          end,
           mode = "n",
-          desc = "Yank the filepath",
           nowait = true,
         },
         ["Y"] = {
@@ -165,12 +175,20 @@ return {
           nowait = true,
         })
 
-        -- Override 'y' to yank entry path (not act as operator)
+        -- Override 'y' to yank relative path (not act as operator)
         vim.keymap.set("n", "y", function()
-          require("oil.actions").yank_entry.callback()
+          local oil = require("oil")
+          local entry = oil.get_cursor_entry()
+          local dir = oil.get_current_dir()
+          if not entry or not dir then return end
+          local full_path = dir .. entry.name
+          local rel_path = vim.fn.fnamemodify(full_path, ":.")
+          vim.fn.setreg("+", rel_path)
+          vim.fn.setreg('"', rel_path)
+          vim.notify("Copied: " .. rel_path, vim.log.levels.INFO)
         end, {
           buffer = buf,
-          desc = "Yank filepath",
+          desc = "Yank relative path",
           silent = true,
           nowait = true,
         })

@@ -17,7 +17,7 @@ if ! has_cmd zellij; then
 	exit 1
 fi
 
-PROJECT_ROOTS=("$HOME/projects" "$HOME/.config")
+PROJECT_ROOTS=("$HOME/projects")
 
 # Choose directory
 if [[ $# -eq 1 ]]; then
@@ -29,7 +29,7 @@ else
 		
 		# Add frecent directories from zoxide (if available)
 		if has_cmd zoxide; then
-			zoxide_dirs=$(zoxide query -l 2>/dev/null | grep -E "^($HOME/projects|$HOME/.config)" || true)
+			zoxide_dirs=$(zoxide query -l 2>/dev/null | grep -E "^($HOME/projects)" || true)
 			# Combine and deduplicate
 			candidates=$(printf '%s\n%s\n' "$project_dirs" "$zoxide_dirs" | awk '!seen[$0]++')
 		else
