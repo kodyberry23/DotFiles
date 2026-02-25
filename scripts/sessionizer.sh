@@ -67,21 +67,15 @@ fi
 
 session_name=$(basename "$selected" | tr ' .' '_')
 
+# zellij-switch plugin for in-session switching (auto-downloaded & cached)
+ZELLIJ_SWITCH_URL="https://github.com/mostafaqanbaryan/zellij-switch/releases/download/0.2.1/zellij-switch.wasm"
+
 # Check if we're already inside a zellij session
 if [[ -n ${ZELLIJ:-} ]]; then
-	# We're inside zellij, check if target session exists
-	if zellij list-sessions 2>/dev/null | grep -q "^${session_name}"; then
-		# Session exists, switch to it
-		zellij action switch-mode normal
-		exec zellij action switch-session "$session_name"
-	else
-		# Create new session in background and switch to it
-		(cd "$selected" && zellij attach --create "$session_name" > /dev/null 2>&1 &)
-		sleep 0.5
-		# Switch to the newly created session
-		zellij action switch-mode normal
-		exec zellij action switch-session "$session_name"
-	fi
+	# Zellij has no native CLI action to switch sessions.
+	# Use the zellij-switch plugin via pipe to call the internal
+	# switch_session_with_layout() API.
+	exec zellij pipe --plugin "$ZELLIJ_SWITCH_URL" -- "-s ${session_name} --cwd ${selected}"
 else
 	# Not in zellij, check if session exists
 	if zellij list-sessions 2>/dev/null | grep -q "^${session_name}"; then
