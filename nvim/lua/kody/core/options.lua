@@ -18,7 +18,7 @@ opt.ignorecase = true
 opt.smartcase = true
 
 -- Cursor line
-opt.cursorline = true
+opt.cursorline = false
 opt.virtualedit = "onemore"
 
 -- Appearance

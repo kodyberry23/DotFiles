@@ -13,6 +13,10 @@ return {
     })
     vim.cmd("colorscheme cyberdream")
 
+    -- Disable cursor line highlight
+    vim.api.nvim_set_hl(0, "CursorLine", { bg = "NONE" })
+    vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#5ea1ff", bg = "NONE" })
+
     -- Give WinSeparator a bg matching the statusline so the blue vertical
     -- line doesn't bleed through at the junction with laststatus=3
     vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#5ea1ff", bg = "#1e2124" })
