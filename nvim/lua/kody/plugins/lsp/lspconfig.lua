@@ -364,7 +364,7 @@ vim.lsp.config("vtsls", {
     },
     typescript = {
       tsserver = {
-        maxTsServerMemory = 8192,
+        maxTsServerMemory = 4096,
       },
       updateImportsOnFileMove = { enabled = "always" },
       suggest = {
