@@ -37,6 +37,17 @@ return {
           show = {
             git = true,
           },
+          glyphs = {
+            git = {
+              untracked = "",
+              unstaged = "󰄱",
+              staged = "󰱒",
+              renamed = "➜",
+              deleted = "",
+              ignored = "◌",
+              unmerged = "",
+            },
+          },
         },
       },
       view = {

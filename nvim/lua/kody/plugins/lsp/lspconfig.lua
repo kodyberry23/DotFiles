@@ -121,8 +121,11 @@ return {
     vim.lsp.config("rust_analyzer", {
       settings = {
         ["rust-analyzer"] = {
+          cachePriming = {
+            enable = false, -- Don't eagerly warm caches on startup (RA maintainer recommendation)
+          },
           cargo = {
-            allFeatures = true,
+            allFeatures = false, -- Was true; analyzing all feature gates is a major memory hog
             loadOutDirsFromCheck = true,
             buildScripts = {
               enable = true,
@@ -130,7 +133,8 @@ return {
           },
           checkOnSave = {
             enable = true,
-            command = "clippy",
+            command = "check", -- Was "clippy"; clippy uses an order of magnitude more resources
+            extraArgs = { "--no-deps" }, -- Only check current package, not entire workspace
           },
           diagnostics = {
             enable = true,
@@ -154,7 +158,7 @@ return {
               "venv",
               ".venv",
             },
-            watcher = "server",
+            watcher = "client", -- Was "server"; let neovim handle file watching
           },
           imports = {
             granularity = {
@@ -192,27 +196,10 @@ return {
             maxLength = 25,
           },
           lens = {
-            enable = true,
-            implementations = {
-              enable = true,
-            },
-            references = {
-              adt = {
-                enable = true,
-              },
-              enumVariant = {
-                enable = true,
-              },
-              method = {
-                enable = true,
-              },
-              trait = {
-                enable = true,
-              },
-            },
-            run = {
-              enable = true,
-            },
+            enable = false, -- Was true; code lens is expensive and purely visual
+          },
+          lru = {
+            capacity = 64, -- Reduce from default 128 syntax trees kept in memory
           },
           hover = {
             actions = {
@@ -332,102 +319,120 @@ return {
       },
     })
 
-vim.lsp.config("vtsls", {
-  filetypes = {
-    "javascript",
-    "javascriptreact",
-    "javascript.jsx",
-    "typescript",
-    "typescriptreact",
-    "typescript.tsx",
-  },
-  settings = {
-    complete_function_calls = true,
-    vtsls = {
-      enableMoveToFileCodeAction = true,
-      autoUseWorkspaceTsdk = true,
-      experimental = {
-        maxInlayHintLength = 30,
-        completion = {
-          enableServerSideFuzzyMatch = true,
+    -- Only load Angular plugin when angular.json exists in project
+    local angular_plugins = {}
+    if vim.fn.findfile("angular.json", ".;") ~= "" then
+      angular_plugins = {
+        {
+          name = "@angular/language-server",
+          location = vim.fn.stdpath("data") .. "/mason/packages/angular-language-server/node_modules/@angular/language-server",
+          enableForWorkspaceTypeScriptVersions = false,
         },
+      }
+    end
+
+    vim.lsp.config("vtsls", {
+      filetypes = {
+        "javascript",
+        "javascriptreact",
+        "javascript.jsx",
+        "typescript",
+        "typescriptreact",
+        "typescript.tsx",
       },
-      tsserver = {
-        globalPlugins = {
-          {
-            name = "@angular/language-server",
-            location = vim.fn.stdpath("data") .. "/mason/packages/angular-language-server/node_modules/@angular/language-server",
-            enableForWorkspaceTypeScriptVersions = false,
+      settings = {
+        complete_function_calls = true,
+        vtsls = {
+          enableMoveToFileCodeAction = true,
+          autoUseWorkspaceTsdk = true,
+          experimental = {
+            maxInlayHintLength = 30,
+            completion = {
+              enableServerSideFuzzyMatch = true,
+            },
+          },
+          tsserver = {
+            globalPlugins = angular_plugins,
+          },
+        },
+        typescript = {
+          tsserver = {
+            maxTsServerMemory = 4096,
+          },
+          updateImportsOnFileMove = { enabled = "always" },
+          suggest = {
+            completeFunctionCalls = true,
+          },
+          inlayHints = {
+            parameterNames = { enabled = "literals" },
+            parameterTypes = { enabled = true },
+            variableTypes = { enabled = true },
+            propertyDeclarationTypes = { enabled = true },
+            functionLikeReturnTypes = { enabled = true },
+            enumMemberValues = { enabled = true },
+          },
+          preferences = {
+            includeCompletionsForModuleExports = true,
+            includeCompletionsWithSnippetText = true,
+            includeCompletionsWithInsertText = true,
+            importModuleSpecifierPreference = "non-relative",
+            includePackageJsonAutoImports = "off", -- Was "on"; scanning all package.json exports is expensive
+            quotePreference = "auto",
+            jsxAttributeCompletionStyle = "auto",
+          },
+        },
+        javascript = {
+          updateImportsOnFileMove = { enabled = "always" },
+          suggest = {
+            completeFunctionCalls = true,
+          },
+          inlayHints = {
+            parameterNames = { enabled = "literals" },
+            parameterTypes = { enabled = true },
+            variableTypes = { enabled = true },
+            propertyDeclarationTypes = { enabled = true },
+            functionLikeReturnTypes = { enabled = true },
+            enumMemberValues = { enabled = true },
+          },
+          preferences = {
+            includePackageJsonAutoImports = "off", -- Was "on"
+            quotePreference = "auto",
+            jsxAttributeCompletionStyle = "auto",
           },
         },
       },
-    },
-    typescript = {
-      tsserver = {
-        maxTsServerMemory = 4096,
-      },
-      updateImportsOnFileMove = { enabled = "always" },
-      suggest = {
-        completeFunctionCalls = true,
-      },
-      inlayHints = {
-        parameterNames = { enabled = "literals" },
-        parameterTypes = { enabled = true },
-        variableTypes = { enabled = true },
-        propertyDeclarationTypes = { enabled = true },
-        functionLikeReturnTypes = { enabled = true },
-        enumMemberValues = { enabled = true },
-      },
-      preferences = {
-        includeCompletionsForModuleExports = true,
-        includeCompletionsWithSnippetText = true,
-        includeCompletionsWithInsertText = true,
-        importModuleSpecifierPreference = "non-relative",
-        includePackageJsonAutoImports = "on",
-        quotePreference = "auto",
-        jsxAttributeCompletionStyle = "auto",
-      },
-    },
-    javascript = {
-      updateImportsOnFileMove = { enabled = "always" },
-      suggest = {
-        completeFunctionCalls = true,
-      },
-      inlayHints = {
-        parameterNames = { enabled = "literals" },
-        parameterTypes = { enabled = true },
-        variableTypes = { enabled = true },
-        propertyDeclarationTypes = { enabled = true },
-        functionLikeReturnTypes = { enabled = true },
-        enumMemberValues = { enabled = true },
-      },
-      preferences = {
-        includePackageJsonAutoImports = "on",
-        quotePreference = "auto",
-        jsxAttributeCompletionStyle = "auto",
-      },
-    },
-  },
-})
+    })
 
-    -- Enable all servers
+    -- Always-on servers (start when matching filetype opens)
     vim.lsp.enable({
       "lua_ls",
       "vtsls",
-      "angularls",
-      "html",
-      "cssls",
-      "tailwindcss",
-      "gopls",
       "rust_analyzer",
-      "pyright",
+      "elixirls",
+      "erlangls",
       "bashls",
       "jsonls",
       "yamlls",
-      "elixirls",
-      "erlangls",
-      "marksman",
       "jdtls",
+      "marksman",
     })
+
+    -- Conditional servers (only enable when project markers exist)
+    local conditional_servers = {
+      { servers = { "angularls" }, markers = { "angular.json" } },
+      { servers = { "gopls" }, markers = { "go.mod", "go.sum" } },
+      { servers = { "pyright" }, markers = { "pyproject.toml", "setup.py", "requirements.txt", "pyrightconfig.json" } },
+      { servers = { "html", "cssls" }, markers = { "package.json" } },
+      { servers = { "tailwindcss" }, markers = { "tailwind.config.js", "tailwind.config.ts", "tailwind.config.mjs", "tailwind.config.cjs" } },
+    }
+
+    for _, entry in ipairs(conditional_servers) do
+      for _, marker in ipairs(entry.markers) do
+        if vim.fn.findfile(marker, ".;") ~= "" then
+          vim.lsp.enable(entry.servers)
+          break
+        end
+      end
+    end
   end,
 }

@@ -1,11 +1,13 @@
 return {
   "echasnovski/mini.icons",
   version = "*",
-  lazy = false,
-  priority = 900, -- Load after colorscheme (1000) but before other plugins
-  config = function()
-    require("mini.icons").setup()
-    -- Drop-in replacement: plugins that expect nvim-web-devicons just work
-    MiniIcons.mock_nvim_web_devicons()
+  lazy = true,
+  -- Intercept nvim-web-devicons requires before any plugin loads (LazyVim pattern)
+  init = function()
+    package.preload["nvim-web-devicons"] = function()
+      require("mini.icons").mock_nvim_web_devicons()
+      return package.loaded["nvim-web-devicons"]
+    end
   end,
+  opts = {},
 }

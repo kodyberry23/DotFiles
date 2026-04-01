@@ -40,8 +40,8 @@ return {
           return
         end
         vim.treesitter.start()
-        -- Enable treesitter-based indentation (experimental)
-        vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        -- Treesitter indent removed: documented memory leak (~1MB/100 lines, never freed)
+        -- vim-sleuth handles indentation detection instead
       end,
       desc = "Enable treesitter highlighting and indentation",
     })

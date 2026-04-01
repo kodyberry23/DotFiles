@@ -4,6 +4,7 @@ mouse_mode true
 copy_command "pbcopy"     
 copy_on_select true
 on_force_close "quit"
+session_serialization false // Don't preserve sessions for resurrection — prevents orphaned nvim/LSP processes
 show_startup_tips false
 show_release_notes false
 advanced_mouse_actions false
