@@ -30,5 +30,9 @@ return {
     vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = "#5ea1ff", bg = "NONE" })
     vim.api.nvim_set_hl(0, "TelescopeResultsBorder", { fg = "#5ea1ff", bg = "NONE" })
     vim.api.nvim_set_hl(0, "TelescopePreviewBorder", { fg = "#5ea1ff", bg = "NONE" })
+
+    -- Transparent backgrounds + visible blue borders for CopilotChat
+    vim.api.nvim_set_hl(0, "CopilotChatHeader", { fg = "#5ea1ff", bg = "NONE", bold = true })
+    vim.api.nvim_set_hl(0, "CopilotChatSeparator", { fg = "#5ea1ff", bg = "NONE" })
   end,
 }
