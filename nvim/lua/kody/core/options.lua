@@ -41,6 +41,9 @@ opt.clipboard:append("unnamedplus")
 opt.splitright = true
 opt.splitbelow = true
 
+-- Mouse (disable)
+opt.mouse = ""
+
 -- Swapfiles (disable)
 opt.swapfile = false
 

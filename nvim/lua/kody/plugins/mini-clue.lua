@@ -78,7 +78,7 @@ return {
         { mode = "n", keys = "<Leader>t", desc = "+toggle" },
         { mode = "n", keys = "<Leader>l", desc = "+lsp/format" },
         { mode = "n", keys = "<Leader>d", desc = "+diagnostics" },
-        { mode = "n", keys = "<Leader>o", desc = "+opencode" },
+        { mode = "n", keys = "<Leader>o", desc = "+copilot" },
         { mode = "n", keys = "<Leader>c", desc = "+claude" },
 
         -- Unimpaired navigation

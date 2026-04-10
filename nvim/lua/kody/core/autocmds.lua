@@ -63,3 +63,15 @@ vim.api.nvim_create_autocmd("FocusGained", {
     vim.cmd("checktime")
   end,
 })
+
+-- ============================================================================
+-- FILETYPE OVERRIDES
+-- ============================================================================
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "json", "jsonc" },
+  desc = "Disable concealing in JSON files (show quotes)",
+  callback = function()
+    vim.opt_local.conceallevel = 0
+  end,
+})

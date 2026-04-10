@@ -1,11 +1,13 @@
 return {
   "coder/claudecode.nvim",
   dependencies = {
-    "folke/snacks.nvim", -- Already configured via opencode.nvim
+    {
+      "folke/snacks.nvim",
+      opts = {
+        terminal = {},
+      },
+    },
   },
-  -- Use <leader>c prefix to avoid conflicts with:
-  -- <leader>a (LSP code action)
-  -- <leader>o (opencode.nvim)
   keys = {
     { "<leader>cc", "<cmd>ClaudeCode<cr>", desc = "Claude: toggle" },
     { "<leader>cf", "<cmd>ClaudeCodeFocus<cr>", desc = "Claude: focus" },

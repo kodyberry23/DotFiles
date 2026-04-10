@@ -77,15 +77,18 @@ if [[ -n ${ZELLIJ:-} ]]; then
 	# switch_session_with_layout() API.
 	exec zellij pipe --plugin "$ZELLIJ_SWITCH_URL" -- "-s ${session_name} --cwd ${selected}"
 else
-	# Not in zellij, check if session exists
-	if zellij list-sessions 2>/dev/null | grep -q "^${session_name}"; then
-		# Session exists - attach to it
-		exec zellij attach "$session_name"
-	else
-		# Create new session
-		cd "$selected"
-		# Clean up any dead session with this name
-		zellij delete-session "$session_name" 2>/dev/null || true
-		exec zellij attach --create "$session_name"
-	fi
+	# Clean up dead sessions
+	while IFS= read -r line; do
+		if [[ "$line" == *"EXITED"* ]]; then
+			zellij delete-session "${line%% *}" 2>/dev/null || true
+		fi
+	done < <(zellij list-sessions --no-formatting 2>/dev/null || true)
+
+	# Kill existing session to prevent stale client sizing issues.
+	# Zellij has no way to detach stale clients — a zombie client from a
+	# previously closed terminal holds outdated dimensions, causing panes
+	# to get stuck at the wrong size on resize.
+	zellij kill-session "$session_name" 2>/dev/null || true
+	cd "$selected"
+	exec zellij attach --create "$session_name"
 fi
