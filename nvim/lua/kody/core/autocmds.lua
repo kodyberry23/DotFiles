@@ -54,13 +54,27 @@ vim.api.nvim_create_autocmd("FocusLost", {
 
 vim.api.nvim_create_autocmd("FocusGained", {
   group = lsp_idle_group,
-  desc = "Cancel LSP stop timer when focus returns",
+  desc = "Cancel LSP stop timer or restart stopped servers when focus returns",
   callback = function()
     if lsp_stop_timer then
       lsp_stop_timer:stop()
       lsp_stop_timer = nil
     end
     vim.cmd("checktime")
+    -- Restart LSP servers if they were stopped by the idle timer
+    if #vim.lsp.get_clients() == 0 then
+      -- Trigger FileType on all listed buffers to re-attach LSP
+      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+        if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+          local ft = vim.bo[buf].filetype
+          if ft and ft ~= "" then
+            vim.api.nvim_buf_call(buf, function()
+              vim.cmd("LspStart")
+            end)
+          end
+        end
+      end
+    end
   end,
 })
 
