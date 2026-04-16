@@ -1,5 +1,11 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "enabled_providers": ["copilot"],
-  "model": "copilot/claude-opus-4.6"
+  "model": "copilot/claude-opus-4.6",
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    }
+  }
 }
