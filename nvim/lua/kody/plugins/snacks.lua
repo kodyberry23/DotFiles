@@ -4,7 +4,6 @@ return {
   lazy = false,
   opts = {
     bufdelete = { enabled = true },
-    scroll = { enabled = true },
     notifier = { enabled = true },
     input = { enabled = true },
   },
