@@ -1,6 +1,10 @@
 # Tmux Plugin Manager - plugins are installed via TPM, not tracked in git
 tmux/.tmux/plugins/
 
+# Erlang/Elixir crash dumps (can be huge — 9MB+)
+erl_crash.dump
+*.dump
+
 # macOS
 .DS_Store
 .AppleDouble
