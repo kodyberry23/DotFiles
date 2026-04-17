@@ -1,38 +1,21 @@
--- ============================================================================
--- LSP CLEANUP ON EXIT
--- ============================================================================
--- When the terminal is closed (SIGHUP), Neovim's built-in VimLeavePre handler
--- tries to gracefully stop LSP servers with a timeout, but during a signal-
--- triggered exit the event loop may not complete the wait. This leaves LSP
--- server processes (vtsls, rust-analyzer, etc.) orphaned and leaking memory.
---
--- This handler force-kills all LSP clients immediately on exit, ensuring
--- their OS processes are terminated even during SIGHUP.
-
+-- Force-kill LSP clients on exit. Neovim's built-in shutdown waits for a
+-- graceful stop that may not complete during a SIGHUP exit (terminal closed),
+-- which leaves vtsls/rust-analyzer/etc. orphaned and leaking memory.
 vim.api.nvim_create_autocmd("VimLeavePre", {
   group = vim.api.nvim_create_augroup("ForceLspCleanup", { clear = true }),
   desc = "Force-kill all LSP clients to prevent orphaned processes",
   callback = function()
-    local clients = vim.lsp.get_clients()
-    for _, client in pairs(clients) do
-      client:stop(true) -- true = force kill (SIGKILL), no graceful timeout
+    for _, client in pairs(vim.lsp.get_clients()) do
+      client:stop(true) -- true = SIGKILL, no graceful timeout
     end
   end,
 })
-
--- ============================================================================
--- FOCUS
--- ============================================================================
 
 vim.api.nvim_create_autocmd("FocusGained", {
   group = vim.api.nvim_create_augroup("Checktime", { clear = true }),
   desc = "Re-read files changed outside of Neovim",
   command = "checktime",
 })
-
--- ============================================================================
--- FILETYPE OVERRIDES
--- ============================================================================
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "json", "jsonc" },

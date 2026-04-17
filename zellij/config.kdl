@@ -60,10 +60,11 @@ keybinds {
         bind "Ctrl n" { SwitchToMode "Resize"; }
         
         // Pane management (use Ctrl-p to enter pane mode)
-        bind "Alt x"  { CloseFocus; SwitchToMode "Locked"; }
+        // Note: Alt-x intentionally NOT bound here — nvim uses it for
+        // Helix-style shrink-to-line-bounds. Use Ctrl-p then x to close pane.
         bind "Alt f"  { ToggleFocusFullscreen; SwitchToMode "Locked"; }
         bind "Alt z"  { TogglePaneFrames; SwitchToMode "Locked"; }
-        
+
         // Tab management
         bind "Alt t"  { NewTab; SwitchToMode "Locked"; }
         bind "Alt w"  { CloseTab; SwitchToMode "Locked"; }

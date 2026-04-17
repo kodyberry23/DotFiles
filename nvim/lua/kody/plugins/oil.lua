@@ -6,14 +6,22 @@ return {
     "JezerM/oil-lsp-diagnostics.nvim",
   },
   config = function()
+    -- Copy the current entry's path (relative or absolute) to the clipboard
+    -- registers. Returns nil if the cursor isn't on an entry.
+    local function yank_oil_path(modifier)
+      local oil = require("oil")
+      local entry, dir = oil.get_cursor_entry(), oil.get_current_dir()
+      if not entry or not dir then return end
+      local path = dir .. entry.name
+      if modifier then path = vim.fn.fnamemodify(path, modifier) end
+      vim.fn.setreg("+", path)
+      vim.fn.setreg('"', path)
+      vim.notify("Copied: " .. path, vim.log.levels.INFO)
+    end
+
     require("oil").setup({
       default_file_explorer = true,
-      columns = {
-        "icon",
-        -- "permissions",
-        -- "size",
-        -- "mtime",
-      },
+      columns = { "icon" },
       -- Disable default keymaps to avoid conflicts with Yazi-style bindings
       use_default_keymaps = false,
       keymaps = {
@@ -29,7 +37,7 @@ return {
         ["<Backspace>"] = { "actions.parent", mode = "n" },
 
         -- Open in splits/tabs
-        ["<C-s>"] = { "actions.select", opts = { vertical = true }, mode = "n" },
+        ["<C-v>"] = { "actions.select", opts = { vertical = true }, mode = "n" },
         ["<C-h>"] = { "actions.select", opts = { horizontal = true }, mode = "n" },
         ["<C-t>"] = { "actions.select", opts = { tab = true }, mode = "n" },
 
@@ -52,32 +60,13 @@ return {
         -- Yank/Copy path (Yazi style: y=yank)
         ["y"] = {
           desc = "Copy relative path to clipboard",
-          callback = function()
-            local oil = require("oil")
-            local entry = oil.get_cursor_entry()
-            local dir = oil.get_current_dir()
-            if not entry or not dir then return end
-            local full_path = dir .. entry.name
-            local rel_path = vim.fn.fnamemodify(full_path, ":.")
-            vim.fn.setreg("+", rel_path)
-            vim.fn.setreg('"', rel_path)
-            vim.notify("Copied: " .. rel_path, vim.log.levels.INFO)
-          end,
+          callback = function() yank_oil_path(":.") end,
           mode = "n",
           nowait = true,
         },
         ["Y"] = {
           desc = "Copy absolute path to clipboard",
-          callback = function()
-            local oil = require("oil")
-            local entry = oil.get_cursor_entry()
-            local dir = oil.get_current_dir()
-            if not entry or not dir then return end
-            local full_path = dir .. entry.name
-            vim.fn.setreg("+", full_path)
-            vim.fn.setreg('"', full_path)
-            vim.notify("Copied: " .. full_path, vim.log.levels.INFO)
-          end,
+          callback = function() yank_oil_path() end,
           mode = "n",
         },
 
@@ -176,17 +165,7 @@ return {
         })
 
         -- Override 'y' to yank relative path (not act as operator)
-        vim.keymap.set("n", "y", function()
-          local oil = require("oil")
-          local entry = oil.get_cursor_entry()
-          local dir = oil.get_current_dir()
-          if not entry or not dir then return end
-          local full_path = dir .. entry.name
-          local rel_path = vim.fn.fnamemodify(full_path, ":.")
-          vim.fn.setreg("+", rel_path)
-          vim.fn.setreg('"', rel_path)
-          vim.notify("Copied: " .. rel_path, vim.log.levels.INFO)
-        end, {
+        vim.keymap.set("n", "y", function() yank_oil_path(":.") end, {
           buffer = buf,
           desc = "Yank relative path",
           silent = true,

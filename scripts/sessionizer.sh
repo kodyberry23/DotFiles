@@ -8,8 +8,12 @@
 
 set -euo pipefail
 
+. "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
+
+# Override err() with a prefix-based message — sessionizer is invoked as an
+# alias (`zns`), so a terse "sessionizer: ..." line is more useful than the
+# symbol-based format used by the multi-step setup scripts.
 err() { printf "sessionizer: %s\n" "$*" >&2; }
-has_cmd() { command -v "$1" >/dev/null 2>&1; }
 
 if ! has_cmd zellij; then
 	err "zellij not found in PATH"
@@ -66,7 +70,8 @@ fi
 
 session_name=$(basename "$selected" | tr ' .' '_')
 
-# zellij-switch plugin for in-session switching (auto-downloaded & cached)
+# zellij-switch plugin for in-session switching — zellij fetches this over
+# HTTP each invoke (no local cache). Pinned to a specific release.
 ZELLIJ_SWITCH_URL="https://github.com/mostafaqanbaryan/zellij-switch/releases/download/0.2.1/zellij-switch.wasm"
 
 # If inside a live zellij session, switch via plugin.

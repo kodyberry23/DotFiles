@@ -1,3 +1,13 @@
+-- Ensure mise shims are on PATH even when Neovim is launched outside an
+-- interactive shell (e.g., GUI launcher). Shims dispatch to per-project
+-- runtime versions so LSPs pick up the correct Node/Python/Elixir etc.
+do
+  local mise_shims = (vim.env.MISE_DATA_DIR or (vim.env.HOME .. "/.local/share/mise")) .. "/shims"
+  if vim.fn.isdirectory(mise_shims) == 1 and not vim.env.PATH:find(mise_shims, 1, true) then
+    vim.env.PATH = mise_shims .. ":" .. vim.env.PATH
+  end
+end
+
 -- Disable unused providers
 vim.g.loaded_perl_provider = 0
 vim.g.loaded_ruby_provider = 0

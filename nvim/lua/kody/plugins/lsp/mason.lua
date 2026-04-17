@@ -38,7 +38,9 @@ return {
         "bashls",
         "jsonls",
         "yamlls",
-        "elixirls",
+        -- elixirls intentionally NOT in Mason: installed via
+        -- scripts/install-elixir-ls.sh so its launcher script can
+        -- auto-detect mise and compile against per-project Elixir/OTP.
         "erlangls",
         "marksman",
         "jdtls",

@@ -1,814 +1,183 @@
 # Dotfiles
 
-My personal configuration files for a modern development environment featuring Neovim, Ghostty terminal, Zellij multiplexer, and Oh My Posh prompt.
+Personal configuration for a modern macOS development environment: **Neovim** with Helix-style keybindings, **Ghostty** terminal, **Zellij** multiplexer, **Oh My Posh** prompt, and **mise** for per-project runtime versioning.
 
-## 🎯 Philosophy
+## Philosophy
 
-This configuration prioritizes:
+- **Helix-inspired** — Neovim keymaps mirror Helix's selection-first model (`x` selects line, `gh/gl` line start/end, `mm` matching bracket, `s/S` multi-cursor, etc.)
+- **Per-project everything** — mise manages Node/Python/Elixir versions per project so projects don't fight over global runtimes
+- **Fast** — lazy-loaded plugins, snacks.nvim for UI, carefully tuned LSPs (rust-analyzer and vtsls both have memory-pruning settings)
+- **Cyberdream** — consistent theme across nvim, zellij, oh-my-posh, and fzf
 
-- ⚡ **Performance** - Fast startup times and responsive tools
-- 🎨 **Aesthetics** - Beautiful, consistent theming across all tools
-- 🎮 **Helix-inspired** - Familiar keybindings from Helix editor
-- 🛠️ **Developer Experience** - Optimized for Elixir, TypeScript, Rust, Go, and Python
+## What's in this repo
 
+| Directory | Purpose |
+|-----------|---------|
+| [`nvim/`](./nvim) | Neovim config — 20+ plugins, native LSP via `vim.lsp.config` (requires 0.11+) |
+| [`ghostty/`](./ghostty) | Ghostty terminal config (cyberdream theme, custom shaders) |
+| [`zellij/`](./zellij) | Zellij multiplexer config + layouts |
+| [`oh-my-posh/`](./oh-my-posh) | Prompt themes (cyberdream is active) |
+| [`zsh-helix-mode/`](./zsh-helix-mode) | zsh line editor with Helix keybindings |
+| [`helix/`](./helix) | Helix editor config (for occasional use) |
+| [`scripts/`](./scripts) | `setup.sh`, `install-elixir-ls.sh`, `sessionizer.sh` |
+| [`KEYMAPS.md`](./KEYMAPS.md) | Full keymap reference |
 
-## 📦 What's Included
-
-### 🔧 Core Tools
-
-| Tool | Description | Config Location |
-| :-- | :-- | :-- |
-| **Neovim** | Modal text editor with Helix-style keybindings | [`nvim/`](./nvim) |
-| **Ghostty** | Fast, native terminal emulator | [`ghostty/`](./ghostty) |
-| **Zellij** | Terminal multiplexer (tmux alternative) | [`zellij/`](./zellij) |
-| **Oh My Posh** | Cross-platform prompt theme engine | [`oh-my-posh/`](./oh-my-posh) |
-
-### ✨ Key Features
-
-#### Neovim
-
-- 🎯 Helix-inspired keybindings (extensive 19KB keymap file!)
-- 🌳 Treesitter syntax highlighting
-- 🔍 Full LSP support (12+ language servers)
-- 🤖 AI pair programming (CodeCompanion)
-- 📦 Mini.nvim suite for lightweight plugins
-- 🎨 Zenbones colorscheme
-- See full details: [`nvim/README.md`](./nvim/README.md)
-
-
-#### Ghostty
-
-- GPU-accelerated rendering
-- Native macOS performance
-- Custom theming
-- Font ligature support
-
-
-#### Zellij
-
-- Modern tmux alternative
-- Seamless nvim integration
-- Custom layouts
-- Mouse support
-
-
-#### Oh My Posh
-
-- Customized prompt
-- Git status integration
-- Fast and lightweight
-
-
-## 🚀 Quick Start
-
-### Prerequisites
+## Quick start
 
 ```bash
-# Install Homebrew (macOS)
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-
-# Install core tools
-brew install neovim zellij oh-my-posh fzf zoxide treesitter treesitter-cli fd ripgrep
-brew install --cask ghostty
-```
-
-
-### Installation
-
-1. **Clone this repository:**
-
-```bash
-git clone [https://github.com/YOUR_USERNAME/dotfiles.git](https://github.com/YOUR_USERNAME/dotfiles.git) ~/projects/dotfiles
+git clone https://github.com/kodyberry/dotfiles.git ~/projects/dotfiles
 cd ~/projects/dotfiles
+scripts/setup.sh
 ```
 
-2. **Create symlinks:**
+> Clone location doesn't have to be `~/projects/dotfiles`. `setup.sh` detects its own location and uses that as the dotfiles root — the paths in the managed `.zshrc` block are generated from wherever you cloned the repo. You can override with `DOTFILES=/some/path scripts/setup.sh` if you need to.
+
+### Previewing with `--dry-run`
+
+Before running on a machine that already has some of this set up, preview what `setup.sh` would do:
 
 ```bash
-# Neovim
-ln -s ~/projects/dotfiles/nvim ~/.config/nvim
-
-# Ghostty
-ln -s ~/projects/dotfiles/ghostty ~/.config/ghostty
-
-# Zellij
-ln -s ~/projects/dotfiles/zellij ~/.config/zellij
-
-# Oh My Posh
-ln -s ~/projects/dotfiles/oh-my-posh ~/.config/oh-my-posh
+scripts/setup.sh --dry-run
 ```
 
-3. **Install Neovim plugins:**
+No changes are made; every step reports either `✓ already ...` (no action needed) or `~ would ...` (describes exactly what it would do). Safe to run anywhere, including a machine you don't own.
 
-```bash
-nvim
-# Lazy.nvim will auto-install plugins
-# Then: :Lazy sync
-# Then: :TSInstall all
+Flags: `--dry-run` / `-n` (preview), `--help` / `-h` (usage).
+
+`setup.sh` is idempotent — safe to re-run. It:
+
+1. Installs Homebrew (if missing)
+2. Installs required formulas: `mise`, `neovim`, `zellij`, `oh-my-posh`, `fzf`, `zoxide`, `fd`, `ripgrep`, `bat`, `eza`, `jq`, `git`
+3. Installs Ghostty cask
+4. Initializes git submodules (needed for `zsh-helix-mode/`)
+5. Symlinks `~/.config/<tool>` → `~/projects/dotfiles/<tool>` for every managed config
+6. Adds a marked-up block to `~/.zshrc` that wires in `mise`, `zoxide`, the zellij helpers, `oh-my-posh`, and `zsh-helix-mode` (replaces the block cleanly on re-runs)
+7. Installs elixir-ls's official launcher (bypasses Mason's one-Elixir-version limitation)
+
+After setup, open a new terminal tab so the new `.zshrc` is sourced.
+
+> **Note:** `zsh-helix-mode/` is a git submodule. `setup.sh` initializes it automatically, but if you prefer to clone fully upfront: `git clone --recurse-submodules ...`.
+
+## What gets added to your .zshrc
+
+A managed block between `# >>> dotfiles managed block >>>` and `# <<< dotfiles managed block <<<` markers. Safe to re-run setup.sh — it replaces the block instead of appending. Your personal zshrc additions (aliases, API keys, etc.) outside that block are untouched.
+
+The block contains:
+
+```zsh
+eval "$(mise activate zsh)"
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+eval "$(zoxide init zsh)"
+
+alias zns="$HOME/projects/dotfiles/scripts/sessionizer.sh"
+alias zj='...fzf into zoxide...'
+alias zls='zellij list-sessions'
+alias zks='zellij delete-session'
+alias zsm='zellij action switch-mode session'
+
+eval "$(oh-my-posh init zsh --config .../cyberdream.omp.json)"
+
+export ZHM_CLIPBOARD_PIPE_CONTENT_TO="pbcopy"
+export ZHM_CLIPBOARD_READ_CONTENT_FROM="pbpaste"
+source "$HOME/.config/zsh-helix-mode/zsh-helix-mode.plugin.zsh"
 ```
 
-4. **Verify setup:**
+## Per-project runtime versions (mise)
 
-```bash
-nvim --version  # Should be 0.11+
-zellij --version
-oh-my-posh --version
-```
-
-
-## 📁 Repository Structure
+This config uses [mise](https://mise.jdx.dev) instead of asdf. Drop a `.tool-versions` or `.mise.toml` in any project:
 
 ```
-dotfiles/
-├── README.md              # This file
-├── KEYMAPS.md            # Complete keymap reference (23KB!)
-├── nvim/                 # Neovim configuration
-│   ├── README.md         # Detailed nvim docs
-│   ├── init.lua
-│   └── lua/kody/
-│       ├── core/
-│       │   ├── options.lua
-│       │   └── keymaps.lua
-│       └── plugins/      # 17+ plugin configs
-├── ghostty/              # Terminal emulator
-│   └── config
-├── zellij/               # Terminal multiplexer
-│   ├── config.kdl
-│   └── layouts/
-└── oh-my-posh/           # Shell prompt
-    └── theme.json
+# .tool-versions
+elixir 1.19.3
+erlang 28.1.1
+nodejs 22.13.0
 ```
 
+With `experimental = true` and `auto_install = true` in `~/.config/mise/config.toml`, `cd`-ing into a project triggers mise to install missing versions on demand.
 
-## 🎮 Keybindings Overview
+### Why not Mason for elixir-ls?
 
-All keybindings are centralized in Neovim's [`nvim/lua/kody/core/keymaps.lua`](./nvim/lua/kody/core/keymaps.lua).
+Mason compiles elixir-ls against whichever Elixir is on PATH at install time, which breaks when you switch projects to a different Elixir. `scripts/install-elixir-ls.sh` installs the official release instead — its `language_server.sh` launcher detects mise, uses `mise which elixir` per project, and caches per-version compiles in `~/.cache/elixir-ls/`. All other LSPs stay in Mason; they're either standalone binaries or shebang-based scripts that route through mise shims correctly.
 
-### Quick Reference
+## Keybindings
 
-| Prefix | Mode | Purpose |
-| :-- | :-- | :-- |
-| `<Space>` | Leader | Main commands (files, LSP, toggles) |
-| `g` | Goto | Navigation (lines, definitions, references) |
-| `]` / `[` | Next/Prev | Diagnostics, buffers, hunks, paragraphs |
-| `m` | Match | Surround operations, brackets |
-| `z` | View | Scrolling, folding, centering |
+Helix-style throughout Neovim. See [`KEYMAPS.md`](./KEYMAPS.md) for the full reference.
 
-**Detailed keybindings:** See [`KEYMAPS.md`](./KEYMAPS.md) or [`nvim/README.md`](./nvim/README.md)
+Quick highlights:
 
-## 🛠️ Customization
+| Key | Action |
+|-----|--------|
+| `%` | Select entire buffer |
+| `x` | Select line (extends on repeat) |
+| `gh` / `gl` / `gs` | Line start / end / first non-blank |
+| `gd` / `gy` / `gr` / `gi` | LSP definition / type / references / impl |
+| `gw` | Jump to any visible word (flash.nvim) |
+| `mm` | Matching bracket |
+| `mi/ma` + `w/f/t/c/a/b` | Select inner/around textobject |
+| `ms/md/mr` + pair | Add/delete/replace surround |
+| `<C-n>` | Start vim-visual-multi (Helix-style selection manipulation) |
+| `]d/[d` | Next/prev diagnostic |
+| `]g/[g` | Next/prev git hunk |
+| `<leader>f` / `<leader>F` | File picker (hidden / all) |
+| `<leader>/` | Live grep workspace |
+| `<leader>a` / `<leader>r` | Code action / rename |
+| `:bc` / `:bca` / `:bco` | Close buffer / all / others (Helix-style) |
 
-### Neovim
+## Troubleshooting
 
-Modify configurations in `nvim/lua/kody/`:
-
-- **Options:** `core/options.lua`
-- **Keymaps:** `core/keymaps.lua`
-- **Plugins:** Add files to `plugins/`
-
-
-### Ghostty
-
-Edit `ghostty/config`:
-
-```conf
-theme = dark:zenbones_dark,light:zenbones_light
-font-family = JetBrainsMono Nerd Font
-font-size = 14
-```
-
-
-### Zellij
-
-Edit `zellij/config.kdl`:
-
-```kdl
-theme "zenbones"
-default_layout "compact"
-```
-
-
-### Oh My Posh
-
-Edit `oh-my-posh/theme.json` to customize prompt segments.
-
-## 🔧 Development Setup
-
-### Language-Specific Tools
-
-**Elixir/Phoenix:**
-
-```bash
-brew install elixir elixir-ls
-# LSP: elixirls (via Mason or brew)
-```
-
-**JavaScript/TypeScript:**
-
-```bash
-npm install -g typescript typescript-language-server
-# LSP: ts_ls
-```
-
-**Rust:**
-
-```bash
-brew install rust rust-analyzer
-# LSP: rust_analyzer
-```
-
-**Go:**
-
-```bash
-brew install go gopls
-# LSP: gopls
-```
-
-**Python:**
-
-```bash
-brew install python
-pip install pyright
-# LSP: pyright
-```
-
-
-### LSP Servers
-
-Install via Neovim's Mason:
+### LSP / Neovim
 
 ```vim
-:Mason
-```
-
-Or see full list in [`nvim/README.md`](./nvim/README.md#-lsp-configuration)
-
-## 🐛 Troubleshooting
-
-### Neovim Issues
-
-**Plugins not loading:**
-
-```vim
+:checkhealth
 :Lazy sync
-:Lazy restore
-```
-
-**LSP not working:**
-
-```vim
-:LspInfo
 :Mason
-<leader>rs  " Restart LSP
 ```
 
-**Treesitter errors:**
-
-```vim
-:TSUpdate
-:TSInstall <language>
-```
-
-
-### Symlink Issues
-
-**Broken symlinks:**
+### Reset mise-installed versions
 
 ```bash
-# Remove old symlinks
-rm ~/.config/nvim ~/.config/ghostty ~/.config/zellij ~/.config/oh-my-posh
-
-
-# Recreate
-ln -s ~/projects/dotfiles/nvim ~/.config/nvim
-ln -s ~/projects/dotfiles/ghostty ~/.config/ghostty
-ln -s ~/projects/dotfiles/zellij ~/.config/zellij
-ln -s ~/projects/dotfiles/oh-my-posh ~/.config/oh-my-posh
+mise install          # install everything in .tool-versions
+mise ls               # see what's installed
 ```
 
-
-### Terminal Issues
-
-**Colors not showing:**
-
-1. Check `TERM` environment variable
-2. Enable true color in terminal settings
-3. Verify terminal supports 24-bit color
-
-## 📚 Documentation
-
-- **Neovim:** [`nvim/README.md`](./nvim/README.md) - Comprehensive Neovim guide
-- **Keymaps:** [`KEYMAPS.md`](./KEYMAPS.md) - Complete keymap reference
-- **Scripts:** [`scripts/`](./scripts) - Utility scripts (if any)
-
-
-## 🙏 Credits \& Inspiration
-
-- **Helix Editor** - Keymap philosophy and design
-- **Mini.nvim** - Lightweight, focused plugins by @echasnovski
-- **Article:** [Making Nvim Act More Like Helix with Mini.nvim](https://evantravers.com/articles/2024/09/17/making-my-nvim-act-more-like-helix-with-mini-nvim/)
-- **Zenbones** - Colorscheme by @mcchrish
-- **Ghostty** - Terminal by @mitchellh
-- **Zellij** - Multiplexer by Zellij contributors
-
-
-## 📝 Notes
-
-### Neovim Version
-
-Requires Neovim 0.11+ for latest LSP and Treesitter APIs.
-
-### Terminal Compatibility
-
-Tested with:
-
-- ✅ Ghostty
-- ✅ Kitty
-- ✅ Alacritty
-- ✅ iTerm2
-- ✅ WezTerm
-
-
-### OS Support
-
-Primary: **macOS**
-May work on Linux with minor adjustments.
-
-## 🔄 Updates
-
-To update all tools:
+### Reset elixir-ls
 
 ```bash
-# Homebrew packages
-brew update && brew upgrade
-
-
-# Neovim plugins
-nvim -c "Lazy sync" -c "TSUpdate"
-
-
-# Pull latest dotfiles
-cd ~/projects/dotfiles
-git pull
+rm -rf ~/.local/share/elixir-ls ~/.cache/elixir-ls
+scripts/install-elixir-ls.sh
 ```
 
+### Reset managed .zshrc block
 
----
+Delete the block (everything between the markers) then re-run `scripts/setup.sh`.
 
-**Maintained by:** Kody Berry
-**Last Updated:** December 2024
-**Neovim Version:** 0.11.5
+### Disable auto-start zellij in Ghostty / iTerm
 
-**License:** MIT (or your preferred license)
+Remove the Session block from `~/.zshrc`.
 
-Here's your updated README.md:
+## Neovim plugin list
 
-```markdown
-# Dotfiles
+Core: `lazy.nvim`, `nvim-lspconfig`, `mason.nvim` (for standalone LSPs), `nvim-cmp`, `conform.nvim`, `nvim-treesitter`, `nvim-treesitter-textobjects`, `telescope.nvim`.
 
-My personal configuration files for a modern development environment featuring Neovim, Ghostty terminal, Zellij multiplexer, and Oh My Posh prompt.
+Editing: `mini.ai`, `mini.surround`, `mini.jump`, `mini.clue`, `mini.icons`, `vim-visual-multi`, `nvim-autopairs`, `flash.nvim`, `vim-sleuth`.
 
-## 🎯 Philosophy
+UI: `snacks.nvim` (picker/bufdelete/scroll/notifier/input), `lualine.nvim`, `bufferline.nvim`, `cyberdream.nvim`, `nvim-tree.lua`, `oil.nvim` + extensions, `gitsigns.nvim`, `garbage-day.nvim` (LSP idle cleanup), `todo-comments.nvim`.
 
-This configuration prioritizes:
-- ⚡ **Performance** - Fast startup times and responsive tools
-- 🎨 **Aesthetics** - Beautiful, consistent theming across all tools
-- 🎮 **Helix-inspired** - Familiar keybindings from Helix editor
-- 🛠️ **Developer Experience** - Optimized for Elixir, TypeScript, Rust, Go, and Python
+AI: `claudecode.nvim`, `opencode.nvim`.
 
-## 📦 What's Included
+Terminal integration: `zellij-nav.nvim`.
 
-### 🔧 Core Tools
+## OS support
 
-| Tool | Description | Config Location |
-|------|-------------|-----------------|
-| **Neovim** | Modal text editor with Helix-style keybindings | [`nvim/`](./nvim) |
-| **Ghostty** | Fast, native terminal emulator | [`ghostty/`](./ghostty) |
-| **Zellij** | Terminal multiplexer (tmux alternative) | [`zellij/`](./zellij) |
-| **Oh My Posh** | Cross-platform prompt theme engine | [`oh-my-posh/`](./oh-my-posh) |
+Primary target: **macOS**. The setup script uses Homebrew and assumes `pbcopy`/`pbpaste` for clipboard. Linux users would need to adapt the package installer and clipboard env vars.
 
-### ✨ Key Features
+## Credits
 
-#### Neovim
-- 🎯 Helix-inspired keybindings (extensive keymap configuration)
-- 🌳 Treesitter syntax highlighting
-- 🔍 Full LSP support (12+ language servers)
-- 💬 Auto-completion with nvim-cmp + autopairs integration
-- 🤖 AI pair programming (CodeCompanion)
-- 📦 Mini.nvim suite for lightweight plugins
-- 🎨 Zenbones colorscheme
-- ✨ Multi-cursor support (vim-visual-multi) with Helix-style selection manipulation
-- See full details: [`nvim/README.md`](./nvim/README.md)
+- [Helix editor](https://helix-editor.com) — keymap inspiration
+- [Making Nvim Act More Like Helix with Mini.nvim](https://evantravers.com/articles/2024/09/17/making-my-nvim-act-more-like-helix-with-mini-nvim/) — starting point
+- [cyberdream.nvim](https://github.com/scottmckendry/cyberdream.nvim) — colorscheme
+- [snacks.nvim](https://github.com/folke/snacks.nvim), [mini.nvim](https://github.com/echasnovski/mini.nvim) — plugin families
 
-#### Ghostty
-- GPU-accelerated rendering
-- Native macOS performance
-- Custom theming (Rosé Pine, Tokyo Night)
-- CRT shader effects
-- Font ligature support
+## License
 
-#### Zellij
-- Modern tmux alternative
-- Seamless nvim integration
-- Custom layouts
-- Mouse support
-
-#### Oh My Posh
-- Customized prompt themes (Rosé Pine, Tokyo Night)
-- Git status integration
-- Fast and lightweight
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-```
-
-
-# Install Homebrew (macOS)
-
-/bin/bash -c "\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# Install core tools
-
-brew install neovim zellij oh-my-posh fzf zoxide fd ripgrep bat eza
-brew install --cask ghostty
-
-```
-
-### Installation
-
-1. **Clone this repository:**
-```
-
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/projects/dotfiles
-cd ~/projects/dotfiles
-
-```
-
-2. **Create symlinks:**
-```
-
-
-# Neovim
-
-ln -s ~/projects/dotfiles/nvim ~/.config/nvim
-
-# Ghostty
-
-ln -s ~/projects/dotfiles/ghostty ~/.config/ghostty
-
-# Zellij
-
-ln -s ~/projects/dotfiles/zellij ~/.config/zellij
-
-# Oh My Posh
-
-ln -s ~/projects/dotfiles/oh-my-posh ~/.config/oh-my-posh
-
-```
-
-3. **Install Neovim plugins:**
-```
-
-nvim
-
-# Lazy.nvim will auto-install plugins
-
-# Then: :Lazy sync
-
-# Then: :TSUpdate
-
-```
-
-4. **Verify setup:**
-```
-
-nvim --version  \# Should be 0.11+
-zellij --version
-oh-my-posh --version
-
-```
-
-## 📁 Repository Structure
-
-```
-
-dotfiles/
-├── README.md              \# This file
-├── KEYMAPS.md            \# Complete keymap reference
-├── nvim/                 \# Neovim configuration
-│   ├── README.md         \# Detailed nvim docs
-│   ├── init.lua          \# Entry point (disables matchit)
-│   ├── filetype.lua      \# Filetype detection
-│   └── lua/kody/
-│       ├── core/
-│       │   ├── init.lua
-│       │   ├── options.lua
-│       │   └── keymaps.lua
-│       ├── lazy.lua      \# Plugin manager
-│       └── plugins/      \# 20+ plugin configs
-├── ghostty/              \# Terminal emulator
-│   ├── config
-│   ├── shaders/          \# CRT effects
-│   └── themes/
-├── zellij/               \# Terminal multiplexer
-│   ├── config.kdl
-│   └── layouts/
-├── oh-my-posh/           \# Shell prompt
-│   ├── rosepine.omp.json
-│   └── tokyonight-storm.omp.json
-└── scripts/
-└── sessionizer.sh    \# Project switcher
-
-```
-
-## 🎮 Keybindings Overview
-
-All keybindings are centralized in Neovim's [`nvim/lua/kody/core/keymaps.lua`](./nvim/lua/kody/core/keymaps.lua).
-
-### Quick Reference
-
-| Key | Purpose | Description |
-|-----|---------|-------------|
-| `%` | Select all | Select entire buffer (Helix style) |
-| `<Space>` | Leader | Main commands (files, LSP, toggles) |
-| `g` | Goto | Navigation (lines, definitions, references) |
-| `]` / `[` | Next/Prev | Diagnostics, buffers, hunks, paragraphs |
-| `m` | Match | Surround operations, brackets, text objects |
-| `z` | View | Scrolling, folding, centering |
-| `<C-n>` | Multi-cursor | Start vim-visual-multi (Helix-style) |
-
-### Helix-Style Features
-
-- **`%`** - Select entire buffer (matchit disabled to enable this)
-- **`x`** - Select line / extend selection
-- **`d` / `c`** - Delete/change without yanking (in visual mode)
-- **`mm`** - Match brackets (replaces Vim's `%`)
-- **`mi` / `ma`** - Inner/around text objects
-- **`ms` / `mr` / `md`** - Surround add/replace/delete
-- **Multi-cursor** - Start with `<C-n>`, then use Helix keys (`s`, `S`, `&`, `_`, etc.)
-
-**Detailed keybindings:** See [`KEYMAPS.md`](./KEYMAPS.md) or [`nvim/README.md`](./nvim/README.md)
-
-## 🛠️ Customization
-
-### Neovim
-
-Modify configurations in `nvim/lua/kody/`:
-- **Options:** `core/options.lua`
-- **Keymaps:** `core/keymaps.lua`
-- **Plugins:** Add files to `plugins/`
-
-#### Important: Matchit Plugin
-
-The matchit plugin is **disabled** in `init.lua` to allow `%` to be used for select-all (Helix style):
-
-```
-
--- In nvim/init.lua (before loading plugins)
-vim.g.loaded_matchit = 1
-
-```
-
-The original bracket-matching functionality is preserved via `mm` in Match Mode.
-
-### Ghostty
-
-Edit `ghostty/config`:
-```
-
-theme = dark:tokyonight-storm,light:rosepine-dawn
-font-family = JetBrainsMono Nerd Font
-font-size = 14
-
-```
-
-### Zellij
-
-Edit `zellij/config.kdl`:
-```
-
-theme "tokyo-night-storm"
-default_layout "compact"
-
-```
-
-### Oh My Posh
-
-Edit theme files in `oh-my-posh/`:
-- `rosepine.omp.json`
-- `tokyonight-storm.omp.json`
-
-## 🔧 Development Setup
-
-### Language-Specific Tools
-
-**Elixir/Phoenix:**
-```
-
-brew install elixir
-
-# LSP: elixir-ls (via Mason)
-
-```
-
-**JavaScript/TypeScript:**
-```
-
-npm install -g typescript typescript-language-server
-
-# LSP: ts_ls (via Mason)
-
-```
-
-**Rust:**
-```
-
-brew install rust rust-analyzer
-
-# LSP: rust_analyzer (via Mason)
-
-```
-
-**Go:**
-```
-
-brew install go gopls
-
-# LSP: gopls (via Mason)
-
-```
-
-**Python:**
-```
-
-brew install python
-
-# LSP: pyright (via Mason)
-
-```
-
-### LSP Servers
-
-Install via Neovim's Mason:
-```
-
-:Mason
-
-```
-
-Or see full list in [`nvim/README.md`](./nvim/README.md#-lsp-configuration)
-
-## 🐛 Troubleshooting
-
-### Neovim Issues
-
-**Plugins not loading:**
-```
-
-:Lazy sync
-:Lazy restore
-
-```
-
-**LSP not working:**
-```
-
-:LspInfo
-:Mason
-<leader>rs  " Restart LSP
-
-```
-
-**Treesitter errors:**
-```
-
-:TSUpdate
-:TSInstall <language>
-
-```
-
-**`%` select-all not working:**
-1. Check that `vim.g.loaded_matchit = 1` is in `init.lua` before plugins load
-2. Restart Neovim completely
-3. Clear cache: `rm -rf ~/.cache/nvim ~/.local/state/nvim`
-4. Verify with `:map %` (should show your custom mapping)
-
-**Completion not working:**
-```
-
-:checkhealth nvim-cmp
-
-```
-
-Make sure `windwp/nvim-autopairs` is in your cmp dependencies.
-
-### Symlink Issues
-
-**Broken symlinks:**
-```
-
-
-# Remove old symlinks
-
-rm ~/.config/nvim ~/.config/ghostty ~/.config/zellij ~/.config/oh-my-posh
-
-# Recreate
-
-ln -s ~/projects/dotfiles/nvim ~/.config/nvim
-ln -s ~/projects/dotfiles/ghostty ~/.config/ghostty
-ln -s ~/projects/dotfiles/zellij ~/.config/zellij
-ln -s ~/projects/dotfiles/oh-my-posh ~/.config/oh-my-posh
-
-```
-
-### Terminal Issues
-
-**Colors not showing:**
-1. Check `TERM` environment variable (should be `xterm-256color` or `xterm-ghostty`)
-2. Enable true color in terminal settings
-3. Verify terminal supports 24-bit color: `echo $COLORTERM` (should output `truecolor`)
-
-**Zellij navigation conflicts:**
-- `<C-p>` removed from nvim-cmp to avoid Zellij pane mode conflicts
-- Use `<S-Tab>` or arrow keys for previous completion item
-
-## 📚 Documentation
-
-- **Neovim:** [`nvim/README.md`](./nvim/README.md) - Comprehensive Neovim guide
-- **Keymaps:** [`KEYMAPS.md`](./KEYMAPS.md) - Complete keymap reference (23KB+)
-- **Scripts:** [`scripts/`](./scripts) - Utility scripts
-
-## 🙏 Credits & Inspiration
-
-- **Helix Editor** - Keymap philosophy and design
-- **Mini.nvim** - Lightweight, focused plugins by @echasnovski
-- **vim-visual-multi** - Multi-cursor support by @mg979
-- **Article:** [Making Nvim Act More Like Helix with Mini.nvim](https://evantravers.com/articles/2024/09/17/making-my-nvim-act-more-like-helix-with-mini-nvim/)
-- **Rosé Pine** - Colorscheme by @rose-pine
-- **Tokyo Night** - Colorscheme by @folke
-- **Ghostty** - Terminal by @mitchellh
-- **Zellij** - Multiplexer by Zellij contributors
-
-## 📝 Notes
-
-### Neovim Version
-Requires Neovim 0.11+ for latest LSP and Treesitter APIs.
-
-### Terminal Compatibility
-Tested with:
-- ✅ Ghostty (primary)
-- ✅ Kitty
-- ✅ Alacritty
-- ✅ iTerm2
-- ✅ WezTerm
-
-### OS Support
-Primary: **macOS**  
-May work on Linux with minor adjustments.
-
-### Keyboard Shortcuts
-Some terminal shortcuts may not work (e.g., `<S-CR>`, `<C-CR>`) depending on your terminal emulator's key code support.
-
-## 🔄 Updates
-
-To update all tools:
-```
-
-
-# Homebrew packages
-
-brew update \&\& brew upgrade
-
-# Neovim plugins
-
-nvim -c "Lazy sync" -c "TSUpdate"
-
-# Pull latest dotfiles
-
-cd ~/projects/dotfiles
-git pull
-
-```
-
-## 📅 Recent Changes
-
-**2025-12-28:**
-- Fixed `%` select-all by disabling matchit plugin
-- Simplified keymap implementations (removed feedkeys complexity)
-- Updated nvim-cmp with autopairs integration
-- Removed `<C-p>` from cmp to avoid Zellij conflicts
-- Enhanced autopairs configuration with safety checks
-- Improved case transformation mappings
-
----
-
-**Maintained by:** Kody Berry  
-**Last Updated:** December 28, 2025  
-**Neovim Version:** 0.11+
-
-**License:** MIT
-```
-
+MIT
