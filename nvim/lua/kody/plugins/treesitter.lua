@@ -23,7 +23,11 @@ return {
       "json", "yaml", "markdown", "markdown_inline",
     })
 
-    -- Enable treesitter highlighting via FileType autocmd (new API)
+    -- Start treesitter on matching filetypes. If the parser isn't installed
+    -- yet (install() above is async — can race on first launch or silently
+    -- fail), install it on demand and start() once it's ready. Without this
+    -- retry, opening a file whose parser didn't finish downloading requires
+    -- a manual :TSInstall.
     vim.api.nvim_create_autocmd("FileType", {
       pattern = {
         "vim", "vimdoc", "query",
@@ -39,11 +43,27 @@ return {
         if ok and stats and stats.size > 100 * 1024 then
           return
         end
-        vim.treesitter.start()
-        -- Treesitter indent removed: documented memory leak (~1MB/100 lines, never freed)
-        -- vim-sleuth handles indentation detection instead
+
+        local ft = vim.bo[args.buf].filetype
+        local lang = vim.treesitter.language.get_lang(ft) or ft
+
+        if vim.treesitter.language.add(lang) then
+          vim.treesitter.start(args.buf, lang)
+          return
+        end
+
+        -- Parser missing — kick off an install and start once ready.
+        require("nvim-treesitter").install({ lang }):await(function()
+          vim.schedule(function()
+            if vim.api.nvim_buf_is_valid(args.buf)
+              and vim.treesitter.language.add(lang)
+            then
+              vim.treesitter.start(args.buf, lang)
+            end
+          end)
+        end)
       end,
-      desc = "Enable treesitter highlighting and indentation",
+      desc = "Enable treesitter highlighting; install parser on demand",
     })
   end,
 }
