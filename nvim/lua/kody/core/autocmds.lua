@@ -29,6 +29,7 @@ vim.api.nvim_create_autocmd("VimLeavePre", {
 
 local lsp_idle_group = vim.api.nvim_create_augroup("LspIdleManagement", { clear = true })
 local lsp_stop_timer = nil
+local lsp_stopped_servers = {}
 
 vim.api.nvim_create_autocmd("FocusLost", {
   group = lsp_idle_group,
@@ -40,12 +41,19 @@ vim.api.nvim_create_autocmd("FocusLost", {
     lsp_stop_timer = vim.defer_fn(function()
       local clients = vim.lsp.get_clients()
       if #clients > 0 then
+        lsp_stopped_servers = {}
+        for _, client in pairs(clients) do
+          lsp_stopped_servers[client.name] = true
+        end
         vim.notify(
           string.format("Stopping %d idle LSP server(s) to free memory", #clients),
           vim.log.levels.INFO
         )
-        for _, client in pairs(clients) do
-          client:stop()
+        -- Use vim.lsp.enable(name, false) to properly disable servers.
+        -- client:stop() only kills the process but leaves the server
+        -- marked as "enabled", preventing restart on FocusGained.
+        for name in pairs(lsp_stopped_servers) do
+          vim.lsp.enable(name, false)
         end
       end
     end, 1000 * 60 * 5) -- 5 minutes
@@ -61,19 +69,14 @@ vim.api.nvim_create_autocmd("FocusGained", {
       lsp_stop_timer = nil
     end
     vim.cmd("checktime")
-    -- Restart LSP servers if they were stopped by the idle timer
-    if #vim.lsp.get_clients() == 0 then
-      -- Trigger FileType on all listed buffers to re-attach LSP
-      for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-        if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
-          local ft = vim.bo[buf].filetype
-          if ft and ft ~= "" then
-            vim.api.nvim_buf_call(buf, function()
-              vim.cmd("LspStart")
-            end)
-          end
-        end
-      end
+    -- Re-enable servers that were disabled by the idle timer.
+    -- vim.lsp.enable() alone doesn't trigger starts on existing buffers,
+    -- so doautoall FileType is needed to kick the FileType callback.
+    if next(lsp_stopped_servers) then
+      local servers = vim.tbl_keys(lsp_stopped_servers)
+      lsp_stopped_servers = {}
+      vim.lsp.enable(servers)
+      vim.cmd("doautoall FileType")
     end
   end,
 })
