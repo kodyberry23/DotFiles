@@ -107,11 +107,33 @@ install_brew_packages() {
 	installed_formulas=$(brew list --formula -1 2>/dev/null || true)
 	installed_casks=$(brew list --cask -1 2>/dev/null || true)
 
+	# Check common non-brew install locations so we don't reinstall tools
+	# users have gotten another way (system package, cargo/go install, mise's
+	# own installer, direct .dmg download for casks, etc.).
+	_have_outside_brew() {
+		local pkg=$1 kind=$2
+		if [[ $kind == formula ]]; then
+			case "$pkg" in
+				neovim)  has_cmd nvim ;;
+				ripgrep) has_cmd rg ;;
+				*)       has_cmd "$pkg" ;;
+			esac
+		else
+			case "$pkg" in
+				ghostty) [[ -d /Applications/Ghostty.app ]] ;;
+				*)       false ;;
+			esac
+		fi
+	}
+
 	_install() {
 		local pkg=$1 kind=$2 list=$3 flag=${4-}
 		local label=$pkg; [[ $kind == cask ]] && label="$pkg cask"
+
 		if grep -qFx "$pkg" <<<"$list"; then
-			ok "$label (already installed)"
+			ok "$label (already installed via brew)"
+		elif _have_outside_brew "$pkg" "$kind"; then
+			ok "$label (already installed outside brew)"
 		elif $DRY_RUN; then
 			would "install $label"
 		else
@@ -122,7 +144,7 @@ install_brew_packages() {
 
 	for pkg in "${formulas[@]}"; do _install "$pkg" formula "$installed_formulas"; done
 	for pkg in "${casks[@]}";    do _install "$pkg" cask    "$installed_casks" --cask; done
-	unset -f _install
+	unset -f _install _have_outside_brew
 }
 
 init_submodules() {
