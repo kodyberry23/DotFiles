@@ -8,6 +8,7 @@
   "cmp-path": { "branch": "main", "commit": "c642487086dbd9a93160e1679a1327be111cbc25" },
   "conform.nvim": { "branch": "master", "commit": "086a40dc7ed8242c03be9f47fbcee68699cc2395" },
   "cyberdream.nvim": { "branch": "main", "commit": "39f69ebcd8de69c741bb7a65353aa37dd0680ad1" },
+  "garbage-day.nvim": { "branch": "main", "commit": "2fcc56556281de8ee871a5f3beb9db7ab747ef32" },
   "gitsigns.nvim": { "branch": "main", "commit": "8d82c240f190fc33723d48c308ccc1ed8baad69d" },
   "lazy.nvim": { "branch": "main", "commit": "306a05526ada86a7b30af95c5cc81ffba93fef97" },
   "lualine.nvim": { "branch": "master", "commit": "a905eeebc4e63fdc48b5135d3bf8aea5618fb21c" },
