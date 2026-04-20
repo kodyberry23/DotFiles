@@ -90,7 +90,6 @@ return {
           checkOnSave = {
             enable = true,
             command = "check", -- clippy uses an order of magnitude more resources
-            extraArgs = { "--no-deps" },
           },
           diagnostics = { enable = true, disabled = { "inactive-code", "unlinked-file" } },
           procMacro = { enable = true, attributes = { enable = true } },

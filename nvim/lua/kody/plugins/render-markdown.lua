@@ -34,7 +34,7 @@ return {
     },
     code = {
       style = "full",   -- language icon + name above the block
-      width = "block",
+      width = "full",
       left_pad = 2,
       right_pad = 2,
       min_width = 45,   -- avoids awkward skinny blocks
