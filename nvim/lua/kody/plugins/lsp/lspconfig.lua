@@ -25,19 +25,16 @@ return {
       float = { border = "rounded", source = true, max_width = 80 },
     })
 
-    vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-      border = "rounded",
-    })
-    vim.lsp.handlers["textDocument/signatureHelp"] = vim.lsp.with(
-      vim.lsp.handlers.signature_help,
-      { border = "rounded" }
-    )
+    vim.o.winborder = "rounded"
 
     vim.api.nvim_create_autocmd("LspAttach", {
       group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
       callback = function(ev)
         local function map(mode, lhs, rhs, desc)
           vim.keymap.set(mode, lhs, rhs, { buffer = ev.buf, silent = true, desc = desc })
+        end
+        local function jump(count)
+          return function() vim.diagnostic.jump({ count = count, float = true }) end
         end
         map("n", "gr", "<cmd>Telescope lsp_references<CR>",       "Show LSP references")
         map("n", "gD", vim.lsp.buf.declaration,                   "Go to declaration")
@@ -50,8 +47,8 @@ return {
         map("n", "<leader>db", "<cmd>Telescope diagnostics bufnr=0<CR>", "Show buffer diagnostics")
         map("n", "K",    vim.lsp.buf.hover,          "Hover documentation")
         map("n", "<C-k>", vim.lsp.buf.signature_help, "Signature help")
-        map("n", "[d", vim.diagnostic.goto_prev, "Previous diagnostic")
-        map("n", "]d", vim.diagnostic.goto_next, "Next diagnostic")
+        map("n", "[d", jump(-1), "Previous diagnostic")
+        map("n", "]d", jump(1),  "Next diagnostic")
         map("n", "<leader>rs", ":LspRestart<CR>", "Restart LSP")
       end,
     })
@@ -194,7 +191,7 @@ return {
     local elixirls_launcher = vim.fn.expand("~/.local/share/elixir-ls/language_server.sh")
     vim.lsp.config("elixirls", {
       cmd = { elixirls_launcher },
-      filetypes = { "elixir", "eelixir", "heex" },
+      filetypes = { "elixir", "eelixir", "heex", "surface" },
       settings = {
         elixirLS = {
           mixEnv = vim.env.MIX_ENV,

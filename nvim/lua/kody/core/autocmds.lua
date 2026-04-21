@@ -25,13 +25,12 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- mise-aware LSP lifecycle: bounce an LSP client when the buffer's mise
--- root no longer matches the one it was spawned under. Without this, vtsls
--- and friends keep using the previous project's Node/Elixir/OTP across a
--- project switch in the same Neovim session.
+-- Track the mise root each LSP client was spawned under, for :MiseLspStatus
+-- and :MiseLspRestart. lspconfig already spawns a new client per root_dir,
+-- so auto-bouncing on project switch is unnecessary and causes flapping
+-- (nested .tool-versions, subproject buffers, etc.).
 local mise_markers = { "mise.toml", ".mise.toml", ".mise/config.toml", ".tool-versions" }
 local spawn_root = {} -- client_id -> mise root at spawn time
-local mise_group = vim.api.nvim_create_augroup("MiseLspLifecycle", { clear = true })
 
 local function mise_root(bufnr)
   local path = vim.api.nvim_buf_get_name(bufnr)
@@ -41,24 +40,17 @@ local function mise_root(bufnr)
 end
 
 vim.api.nvim_create_autocmd("LspAttach", {
-  group = mise_group,
+  group = vim.api.nvim_create_augroup("MiseLspTrack", { clear = true }),
   callback = function(ev) spawn_root[ev.data.client_id] = mise_root(ev.buf) end,
 })
 
-vim.api.nvim_create_autocmd({ "BufEnter", "DirChanged" }, {
-  group = mise_group,
-  callback = function(ev)
-    local root = mise_root(ev.buf)
-    if not root then return end
-    for _, c in ipairs(vim.lsp.get_clients({ bufnr = ev.buf })) do
-      if spawn_root[c.id] and spawn_root[c.id] ~= root then
-        vim.notify(("[mise] %s: %s -> %s, restarting"):format(c.name, spawn_root[c.id], root))
-        spawn_root[c.id] = nil
-        c:stop() -- auto-reattaches via vim.lsp.enable() on next buffer event
-      end
-    end
-  end,
-})
+vim.api.nvim_create_user_command("MiseLspRestart", function()
+  for _, c in ipairs(vim.lsp.get_clients()) do
+    spawn_root[c.id] = nil
+    c:stop()
+  end
+  vim.notify("[mise] all LSP clients stopped; reopen buffers to respawn")
+end, { desc = "Stop all LSP clients so they respawn under current PATH/cwd" })
 
 vim.api.nvim_create_user_command("MiseLspStatus", function()
   local cur = vim.api.nvim_get_current_buf()
