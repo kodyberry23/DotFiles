@@ -61,24 +61,44 @@ vim.api.nvim_create_autocmd({ "BufEnter", "DirChanged" }, {
 })
 
 vim.api.nvim_create_user_command("MiseLspStatus", function()
-  local lines = { "── Attached LSP clients ──" }
-  for _, c in ipairs(vim.lsp.get_clients()) do
-    lines[#lines + 1] = ("  %s  mise_root=%s  root_dir=%s")
-      :format(c.name, spawn_root[c.id] or "-", c.config.root_dir or "-")
-  end
-  if #lines == 1 then lines[2] = "  (none)" end
-
-  lines[#lines + 1] = ""
-  lines[#lines + 1] = "── exepath from Neovim PATH ──"
-  for _, t in ipairs({ "node", "npm", "elixir", "mix", "erl", "go", "python3" }) do
-    local p = vim.fn.exepath(t)
-    lines[#lines + 1] = ("  %-8s %s"):format(t, p ~= "" and p or "(not found)")
+  local cur = vim.api.nvim_get_current_buf()
+  local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
+  local lines = {}
+  local function or_else(s, d) return s ~= "" and s or d end
+  local function section(title, items)
+    if #lines > 0 then lines[#lines + 1] = "" end
+    lines[#lines + 1] = "── " .. title .. " ──"
+    if #items == 0 then items = { "(none)" } end
+    for _, s in ipairs(items) do lines[#lines + 1] = "  " .. s end
   end
 
-  lines[#lines + 1] = ""
-  lines[#lines + 1] = "── PATH head ──"
+  section("Current buffer", {
+    "name     " .. or_else(vim.api.nvim_buf_get_name(cur), "(unnamed)"),
+    "filetype " .. or_else(vim.bo[cur].filetype, "(none)"),
+    "cwd      " .. vim.fn.getcwd(),
+  })
+
+  local global = vim.tbl_map(function(c)
+    return ("%s  mise_root=%s  root_dir=%s"):format(c.name, spawn_root[c.id] or "-", c.config.root_dir or "-")
+  end, vim.lsp.get_clients())
+  section("Attached LSP clients (global)", global)
+
+  local here = vim.tbl_map(function(c) return c.name end, vim.lsp.get_clients({ bufnr = cur }))
+  section("Attached to current buffer", here)
+
+  local bins = vim.tbl_map(function(b)
+    local p, mason = vim.fn.exepath(b), vim.fn.filereadable(mason_bin .. "/" .. b) == 1
+    return ("%-28s %s%s"):format(b, or_else(p, "(not on PATH)"), mason and " [mason]" or "")
+  end, { "vtsls", "typescript-language-server", "lua-language-server", "elixir-ls", "gopls", "rust-analyzer" })
+  section("LSP binary resolution", bins)
+
+  local tools = vim.tbl_map(function(t)
+    return ("%-8s %s"):format(t, or_else(vim.fn.exepath(t), "(not found)"))
+  end, { "node", "npm", "elixir", "mix", "erl", "go", "python3" })
+  section("exepath from Neovim PATH", tools)
+
   local path = vim.split(vim.env.PATH or "", ":", { plain = true })
-  for i = 1, math.min(8, #path) do lines[#lines + 1] = "  " .. path[i] end
+  section("PATH head", { unpack(path, 1, math.min(8, #path)) })
 
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
@@ -87,6 +107,6 @@ vim.api.nvim_create_user_command("MiseLspStatus", function()
   vim.bo[buf].filetype = "miselspstatus"
   vim.api.nvim_buf_set_name(buf, "MiseLspStatus")
   vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = buf, silent = true })
-  vim.cmd("botright " .. math.min(#lines + 2, 20) .. "split")
+  vim.cmd("botright " .. math.min(#lines + 2, 25) .. "split")
   vim.api.nvim_win_set_buf(0, buf)
 end, { desc = "Show LSP clients' mise roots and runtime resolution" })
