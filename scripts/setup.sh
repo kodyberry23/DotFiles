@@ -18,6 +18,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # Works regardless of where the user cloned; DOTFILES env var overrides.
 DOTFILES="${DOTFILES:-$(cd "$SCRIPT_DIR/.." && pwd)}"
 ZSHRC="$HOME/.zshrc"
+ZPROFILE="$HOME/.zprofile"
 MARKER_START="# >>> dotfiles managed block >>>"
 MARKER_END="# <<< dotfiles managed block <<<"
 
@@ -33,7 +34,9 @@ What it does:
   4. Symlinks ~/.config/<name> -> <dotfiles>/<name>
   5. Adds a managed block to ~/.zshrc that wires up mise, zellij helpers,
      oh-my-posh, and zsh-helix-mode (replaces old block if present)
-  6. Runs scripts/install-elixir-ls.sh
+  6. Adds a managed block to ~/.zprofile that prepends mise shims for
+     non-interactive login shells (tmux startup, `zsh -l` scripts)
+  7. Runs scripts/install-elixir-ls.sh
 
 Usage:
   scripts/setup.sh              actually make changes
@@ -219,7 +222,7 @@ symlink_configs() {
 	done
 }
 
-managed_block() {
+zshrc_block() {
 	# Heredoc is single-quoted so $(...) and $HOME stay literal (they expand
 	# at .zshrc load time). __DOTFILES__ is our substitution placeholder.
 	local block
@@ -257,35 +260,60 @@ EOF
 	printf "%s" "${block//__DOTFILES__/$DOTFILES}"
 }
 
-setup_zshrc() {
-	info ".zshrc managed block"
-	if $DRY_RUN && [[ ! -f "$ZSHRC" ]]; then
-		would "create $ZSHRC with managed block"
+zprofile_block() {
+	# .zprofile runs for login shells (incl. non-interactive ones like tmux
+	# startup scripts or `zsh -l -c ...`). Prepending mise shims here means
+	# mise-managed runtimes are on PATH even when .zshrc doesn't run.
+	# macOS GUI app launches (Spotlight, Finder) do NOT read .zprofile —
+	# nvim/init.lua handles that case separately.
+	local block
+	block=$(cat <<'EOF'
+# >>> dotfiles managed block >>>
+# Managed by __DOTFILES__/scripts/setup.sh — re-run setup.sh to update.
+# Remove these markers and the lines between to disable.
+
+# Mise shims for non-interactive login shells (tmux, `zsh -l`, etc.)
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+
+# <<< dotfiles managed block <<<
+EOF
+)
+	printf "%s" "${block//__DOTFILES__/$DOTFILES}"
+}
+
+# Install/update a managed block in a dotfile. $1 = target path, $2 = name of
+# function that emits the block body.
+setup_managed_block() {
+	local target=$1 block_fn=$2
+	local label="$(basename "$target") managed block"
+	info "$label"
+
+	if $DRY_RUN && [[ ! -f "$target" ]]; then
+		would "create $target with managed block"
 		return
 	fi
-	touch "$ZSHRC"
+	touch "$target"
 
 	local new_block
-	new_block=$(managed_block)
+	new_block=$("$block_fn")
 
-	if grep -qF "$MARKER_START" "$ZSHRC"; then
+	if grep -qF "$MARKER_START" "$target"; then
 		local current_block
 		current_block=$(awk -v s="$MARKER_START" -v e="$MARKER_END" '
 			$0 ~ s { inside=1 }
 			inside { print }
 			$0 ~ e { inside=0 }
-		' "$ZSHRC")
+		' "$target")
 		if [[ "$current_block" == "$new_block" ]]; then
 			ok "already up to date"
 			return
 		fi
 
 		if $DRY_RUN; then
-			would "replace existing managed block in $ZSHRC"
+			would "replace existing managed block in $target"
 			return
 		fi
 
-		# Strip old block and append the new one in a single awk pass.
 		local tmp
 		tmp=$(mktemp)
 		awk -v s="$MARKER_START" -v e="$MARKER_END" -v new="$new_block" '
@@ -293,15 +321,15 @@ setup_zshrc() {
 			$0 ~ e { skip=0; next }
 			!skip  { print }
 			END    { printf "\n%s\n", new }
-		' "$ZSHRC" > "$tmp"
-		mv "$tmp" "$ZSHRC"
+		' "$target" > "$tmp"
+		mv "$tmp" "$target"
 		ok "updated (existing block replaced)"
 	else
 		if $DRY_RUN; then
-			would "append managed block to $ZSHRC"
+			would "append managed block to $target"
 			return
 		fi
-		printf "\n%s\n" "$new_block" >> "$ZSHRC"
+		printf "\n%s\n" "$new_block" >> "$target"
 		ok "added"
 	fi
 }
@@ -327,7 +355,8 @@ main() {
 	install_brew_packages
 	init_submodules
 	symlink_configs
-	setup_zshrc
+	setup_managed_block "$ZSHRC" zshrc_block
+	setup_managed_block "$ZPROFILE" zprofile_block
 	install_elixir_ls
 
 	echo
