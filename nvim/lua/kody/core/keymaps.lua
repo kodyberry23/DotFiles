@@ -58,10 +58,14 @@ keymap.set("v", "y", "y`>", { desc = "Yank and move to end" })
 keymap.set("v", "<leader>y", '"+y`>', { desc = "Yank to clipboard" })
 keymap.set("n", "<leader>y", '"+y', { desc = "Yank to clipboard" })
 keymap.set("n", "<leader>Y", '"+Y', { desc = "Yank line to clipboard" })
-keymap.set({ "n", "v" }, "<leader>p", '"+p', { desc = "Paste from clipboard" })
-keymap.set({ "n", "v" }, "<leader>P", '"+P', { desc = "Paste before from clipboard" })
-keymap.set("n", "<leader>R", '"+P', { desc = "Replace from clipboard" })
-keymap.set("v", "<leader>R", '"+p', { desc = "Replace from clipboard" })
+keymap.set("n", "<leader>p", '"+p', { desc = "Paste from clipboard" })
+keymap.set("n", "<leader>P", '"+P', { desc = "Paste before from clipboard" })
+-- Visual-mode variants use "_d first so the replaced selection doesn't clobber
+-- the unnamed register (which is aliased to + via clipboard=unnamedplus).
+keymap.set("v", "<leader>p", '"_d"+P', { desc = "Paste from clipboard" })
+keymap.set("v", "<leader>P", '"_d"+P', { desc = "Paste before from clipboard" })
+keymap.set("n", "<leader>R", '"_x"+P', { desc = "Replace from clipboard" })
+keymap.set("v", "<leader>R", '"_d"+P', { desc = "Replace from clipboard" })
 
 -- Telescope picker (helix: space+')
 keymap.set("n", "<leader>'", "<cmd>Telescope resume<CR>", { desc = "Resume last picker" })
@@ -230,18 +234,22 @@ keymap.set("v", "c", '"_c', { desc = "Change selection" })
 keymap.set("n", "<A-d>", '"_d', { desc = "Delete motion (no yank)" })
 keymap.set("n", "<A-c>", '"_c', { desc = "Change motion (no yank)" })
 
--- Replace operations (helix: r/R)
-keymap.set("v", "r", function()
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('"_c', true, false, true), "n", false)
+-- Replace operations (helix: r/R).
+-- helix r: replaces every char in the selection with the typed one (newlines
+--   preserved). Uses a throwaway register "z" so "" / "0 stay untouched.
+-- helix R: replaces selection with last-yanked text. "_d routes the delete to
+--   the black hole so the replaced text doesn't clobber any register.
+keymap.set("x", "r", function()
   local char = vim.fn.getcharstr()
-  if char:match("%w") or char:match("%p") or char == " " then
-    local count = vim.fn.col("'>") - vim.fn.col("'<") + 1
-    vim.api.nvim_put({ string.rep(char, count) }, "c", true, true)
-  end
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", false)
+  if char == "" or char == "\27" then return end
+  local save, save_type = vim.fn.getreg("z"), vim.fn.getregtype("z")
+  vim.cmd('noautocmd normal! "zy')
+  vim.fn.setreg("z", (vim.fn.getreg("z"):gsub("[^\r\n]", char)), vim.fn.getregtype("z"))
+  vim.cmd('noautocmd normal! gv"_d"zP')
+  vim.fn.setreg("z", save, save_type)
 end, { desc = "Replace selection with char" })
 keymap.set("v", "R", '"_d"0P', { desc = "Replace with yanked text" })
-keymap.set("n", "R", 'vl"_d"0P', { desc = "Replace char with yanked" })
+keymap.set("n", "R", '"_x"0P', { desc = "Replace char with yanked" })
 
 -- Case transformation (helix: ~ toggle, ` lowercase, Alt-` uppercase)
 keymap.set("n", "`", "vul", { desc = "Lowercase char" })
