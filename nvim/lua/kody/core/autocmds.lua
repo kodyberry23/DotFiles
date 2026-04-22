@@ -87,6 +87,21 @@ vim.api.nvim_create_user_command("MiseLspStatus", function()
     vim.fn.filereadable(els) == 1 and els or "(missing — run scripts/install-elixir-ls.sh)")
   section("LSP binary resolution", bins)
 
+  local watched = { "lua_ls", "vtsls", "rust_analyzer", "elixirls", "erlangls", "gopls", "pyright", "jsonls", "yamlls", "bashls" }
+  local reg = vim.tbl_map(function(name)
+    local cfg = vim.lsp.config[name]
+    local has_cfg = cfg ~= nil
+    local enabled = pcall(vim.lsp.is_enabled, name) and vim.lsp.is_enabled(name) or false
+    local cmd_ok = false
+    if has_cfg and cfg.cmd then
+      local c = type(cfg.cmd) == "table" and cfg.cmd[1] or nil
+      cmd_ok = c and vim.fn.executable(c) == 1 or false
+    end
+    return ("%-14s config=%s  enabled=%s  cmd_ok=%s"):format(
+      name, has_cfg and "yes" or "no", enabled and "yes" or "no", cmd_ok and "yes" or "n/a")
+  end, watched)
+  section("LSP registry state", reg)
+
   local tools = vim.tbl_map(function(t)
     return ("%-8s %s"):format(t, or_else(vim.fn.exepath(t), "(not found)"))
   end, { "node", "npm", "elixir", "mix", "erl", "go", "python3" })
