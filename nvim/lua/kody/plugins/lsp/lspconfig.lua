@@ -202,6 +202,9 @@ return {
     vim.lsp.config("elixirls", {
       cmd = { elixirls_launcher },
       filetypes = { "elixir", "eelixir", "heex", "surface" },
+      -- Explicit root_markers so attach doesn't depend on whichever nvim-lspconfig
+      -- version is installed shipping its own default root_dir.
+      root_markers = { "mix.exs", ".git" },
       settings = {
         elixirLS = {
           mixEnv = vim.env.MIX_ENV,
