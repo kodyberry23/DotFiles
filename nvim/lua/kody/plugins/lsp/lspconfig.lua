@@ -189,6 +189,16 @@ return {
     -- elixir-ls launcher installed by scripts/install-elixir-ls.sh detects
     -- asdf/mise/vfox internally — do NOT wrap in `mise x` or `asdf exec`.
     local elixirls_launcher = vim.fn.expand("~/.local/share/elixir-ls/language_server.sh")
+    if vim.fn.executable(elixirls_launcher) ~= 1 then
+      vim.schedule(function()
+        vim.notify(
+          "[elixir-ls] launcher missing or not executable: " .. elixirls_launcher
+          .. "\nRun: " .. vim.fn.stdpath("config"):gsub("/nvim$", "") .. "/../dotfiles/scripts/install-elixir-ls.sh"
+          .. "\n(or: scripts/install-elixir-ls.sh from your dotfiles checkout)",
+          vim.log.levels.WARN
+        )
+      end)
+    end
     vim.lsp.config("elixirls", {
       cmd = { elixirls_launcher },
       filetypes = { "elixir", "eelixir", "heex", "surface" },
