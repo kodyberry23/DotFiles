@@ -45,7 +45,7 @@ return {
         map("n", "<leader>r",  vim.lsp.buf.rename,                "Smart rename")
         map("n", "<leader>dl", vim.diagnostic.open_float,         "Show line diagnostics")
         map("n", "<leader>db", "<cmd>Telescope diagnostics bufnr=0<CR>", "Show buffer diagnostics")
-        map("n", "K",    vim.lsp.buf.hover,          "Hover documentation")
+        map("n", "K",    function() vim.lsp.buf.hover({ max_width = 100, max_height = 30 }) end, "Hover documentation")
         map("n", "<C-k>", vim.lsp.buf.signature_help, "Signature help")
         map("n", "[d", jump(-1), "Previous diagnostic")
         map("n", "]d", jump(1),  "Next diagnostic")
