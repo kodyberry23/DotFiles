@@ -184,7 +184,7 @@ ensure_symlink() {
 		current=$(readlink "$dst")
 		if [[ "$current" == "$src" ]]; then
 			ok "$(basename "$dst") (already linked)"
-			return
+			return 0
 		fi
 		warn "$dst points to $current"
 		if $DRY_RUN; then
@@ -194,32 +194,37 @@ ensure_symlink() {
 			ln -s "$src" "$dst"
 			ok "$(basename "$dst") -> $src (replaced)"
 		fi
-		return
+		return 0
 	elif [[ -e "$dst" ]]; then
-		warn "$dst exists and is not a symlink"
-		warn "  move or delete it, then re-run setup.sh"
-		return
+		err "$dst exists and is not a symlink — move or delete it, then re-run"
+		return 1
 	fi
 
 	if $DRY_RUN; then
 		would "create symlink: $dst -> $src"
-		return
+		return 0
 	fi
 	mkdir -p "$(dirname "$dst")"
 	ln -s "$src" "$dst"
 	ok "$(basename "$dst") -> $src"
+	return 0
 }
 
+# Prints blocking failure count on stdout. `|| true` on the caller side keeps
+# set -e from exiting when failures >0.
 symlink_configs() {
 	info "~/.config symlinks"
 	local names=(nvim ghostty zellij oh-my-posh zsh-helix-mode helix)
+	local failures=0
 	for name in "${names[@]}"; do
-		if [[ -d "$DOTFILES/$name" ]]; then
-			ensure_symlink "$DOTFILES/$name" "$HOME/.config/$name"
-		else
-			warn "$DOTFILES/$name not found, skipping"
+		if [[ ! -d "$DOTFILES/$name" ]]; then
+			err "$DOTFILES/$name not found in repo"
+			failures=$((failures + 1))
+			continue
 		fi
+		ensure_symlink "$DOTFILES/$name" "$HOME/.config/$name" || failures=$((failures + 1))
 	done
+	return "$failures"
 }
 
 zshrc_block() {
@@ -288,11 +293,13 @@ setup_managed_block() {
 	local label="$(basename "$target") managed block"
 	info "$label"
 
-	if $DRY_RUN && [[ ! -f "$target" ]]; then
-		would "create $target with managed block"
-		return
+	if [[ ! -f "$target" ]]; then
+		if $DRY_RUN; then
+			would "create $target with managed block"
+			return
+		fi
+		touch "$target"
 	fi
-	touch "$target"
 
 	local new_block
 	new_block=$("$block_fn")
@@ -337,10 +344,13 @@ setup_managed_block() {
 install_elixir_ls() {
 	info "elixir-ls (official launcher)"
 	if $DRY_RUN; then
-		# install-elixir-ls.sh is idempotent; read its version marker to
-		# predict whether it would do anything.
+		# Mirror install-elixir-ls.sh's idempotency check: both the version
+		# marker AND the launcher script must exist. A partial install can
+		# leave the marker behind without the launcher.
+		local install_dir="$HOME/.local/share/elixir-ls"
 		local version
-		if version=$(cat "$HOME/.local/share/elixir-ls/.installed-version" 2>/dev/null); then
+		version=$(cat "$install_dir/.installed-version" 2>/dev/null || true)
+		if [[ -n "$version" && -x "$install_dir/language_server.sh" ]]; then
 			ok "already installed ($version)"
 		else
 			would "run $DOTFILES/scripts/install-elixir-ls.sh"
@@ -354,12 +364,20 @@ main() {
 	install_homebrew
 	install_brew_packages
 	init_submodules
-	symlink_configs
+
+	local symlink_failures=0
+	symlink_configs || symlink_failures=$?
+
 	setup_managed_block "$ZSHRC" zshrc_block
 	setup_managed_block "$ZPROFILE" zprofile_block
 	install_elixir_ls
 
 	echo
+	if [[ $symlink_failures -gt 0 ]]; then
+		err "completed with $symlink_failures symlink problem(s) above"
+		err "resolve those and re-run setup.sh — nvim/config won't work correctly until then"
+		exit 1
+	fi
 	if $DRY_RUN; then
 		info "Dry-run complete — no changes made"
 		echo "  Re-run without --dry-run to apply."

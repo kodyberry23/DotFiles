@@ -81,7 +81,10 @@ vim.api.nvim_create_user_command("MiseLspStatus", function()
   local bins = vim.tbl_map(function(b)
     local p, mason = vim.fn.exepath(b), vim.fn.filereadable(mason_bin .. "/" .. b) == 1
     return ("%-28s %s%s"):format(b, or_else(p, "(not on PATH)"), mason and " [mason]" or "")
-  end, { "vtsls", "typescript-language-server", "lua-language-server", "elixir-ls", "gopls", "rust-analyzer" })
+  end, { "vtsls", "typescript-language-server", "lua-language-server", "gopls", "rust-analyzer" })
+  local els = vim.fn.expand("~/.local/share/elixir-ls/language_server.sh")
+  bins[#bins + 1] = ("%-28s %s"):format("elixir-ls (launcher)",
+    vim.fn.filereadable(els) == 1 and els or "(missing — run scripts/install-elixir-ls.sh)")
   section("LSP binary resolution", bins)
 
   local tools = vim.tbl_map(function(t)
