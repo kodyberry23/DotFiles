@@ -1,18 +1,60 @@
 #!/usr/bin/env bash
 
-# Install elixir-ls's official release, which includes the launcher script
-# that auto-detects asdf/mise/vfox and picks up per-project Elixir/OTP
-# versions. Mason compiles elixir-ls against a single Elixir version at
-# install time, which breaks when switching projects — this bypasses that.
+# Install elixir-ls's official release. The launcher included in the release
+# auto-detects asdf/mise/vfox and picks up per-project Elixir/OTP versions,
+# but the release's compiled .beam files are pinned to a specific Elixir
+# series — so this script auto-picks an elixir-ls version matching the
+# active Elixir (v0.28.0 for 1.14.x, v0.29.3 for 1.15–1.18, v0.30.0 for
+# 1.19+). Run from inside a project directory so mise reports the project's
+# Elixir version, not the global default.
 #
-# Idempotent: skips download if the requested version is already installed.
-# Override version via env: ELIXIR_LS_VERSION=v0.30.0 scripts/install-elixir-ls.sh
+# Idempotent: reinstalls only if the requested version differs from the
+# currently-installed one or the launcher is missing.
+#
+# Overrides:
+#   ELIXIR_LS_VERSION=v0.28.0  scripts/install-elixir-ls.sh   # pin directly
+#   ELIXIR_VERSION=1.14.5      scripts/install-elixir-ls.sh   # pin elixir version for the lookup
 
 set -euo pipefail
 
 . "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/lib/common.sh"
 
-ELIXIR_LS_VERSION="${ELIXIR_LS_VERSION:-v0.30.0}"
+# Elixir series -> last compatible elixir-ls release. Update when upstream
+# drops support for older Elixir versions (check release notes).
+pick_elixir_ls_version() {
+	local elixir_ver=$1
+	case "$elixir_ver" in
+		1.13.*)                           echo "v0.20.0" ;;
+		1.14.*)                           echo "v0.28.0" ;;
+		1.15.*|1.16.*|1.17.*|1.18.*)      echo "v0.29.3" ;;
+		1.19.*|1.2*|*)                    echo "v0.30.0" ;; # default to latest for unknown/newer
+	esac
+}
+
+detect_elixir_version() {
+	local v=${ELIXIR_VERSION:-}
+	if [[ -z "$v" ]] && has_cmd mise; then
+		# mise output like "1.14.5-otp-26"; strip the -otp-NN suffix.
+		v=$(mise current elixir 2>/dev/null | sed 's/-otp-[0-9]*$//')
+	fi
+	if [[ -z "$v" ]] && has_cmd elixir; then
+		v=$(elixir --version 2>/dev/null | awk '/^Elixir/ {print $2; exit}')
+	fi
+	echo "$v"
+}
+
+if [[ -z "${ELIXIR_LS_VERSION:-}" ]]; then
+	elixir_ver=$(detect_elixir_version)
+	if [[ -n "$elixir_ver" ]]; then
+		ELIXIR_LS_VERSION=$(pick_elixir_ls_version "$elixir_ver")
+		info "Detected Elixir $elixir_ver → elixir-ls $ELIXIR_LS_VERSION"
+	else
+		ELIXIR_LS_VERSION="v0.30.0"
+		warn "Could not detect Elixir version — defaulting to elixir-ls $ELIXIR_LS_VERSION"
+		warn "Override with ELIXIR_VERSION=<version> or ELIXIR_LS_VERSION=<tag>"
+	fi
+fi
+
 INSTALL_DIR="${ELIXIR_LS_INSTALL_DIR:-$HOME/.local/share/elixir-ls}"
 RELEASE_URL="https://github.com/elixir-lsp/elixir-ls/releases/download/${ELIXIR_LS_VERSION}/elixir-ls-${ELIXIR_LS_VERSION}.zip"
 LAUNCHER="$INSTALL_DIR/language_server.sh"

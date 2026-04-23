@@ -288,7 +288,7 @@ return {
         vim.cmd("call vm#special#commands#filter_regions(0, '', 1)")
       else
         -- When VM not active, use default K (hover)
-        vim.lsp.buf.hover({ max_width = 100, max_height = 30 })
+        require("kody.util.lsp").hover()
       end
     end, { desc = "VM: Keep selections / LSP Hover" })
 

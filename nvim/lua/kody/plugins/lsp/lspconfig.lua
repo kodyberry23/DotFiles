@@ -45,7 +45,7 @@ return {
         map("n", "<leader>r",  vim.lsp.buf.rename,                "Smart rename")
         map("n", "<leader>dl", vim.diagnostic.open_float,         "Show line diagnostics")
         map("n", "<leader>db", "<cmd>Telescope diagnostics bufnr=0<CR>", "Show buffer diagnostics")
-        map("n", "K",    function() vim.lsp.buf.hover({ max_width = 100, max_height = 30 }) end, "Hover documentation")
+        map("n", "K",    require("kody.util.lsp").hover, "Hover documentation")
         map("n", "<C-k>", vim.lsp.buf.signature_help, "Signature help")
         map("n", "[d", jump(-1), "Previous diagnostic")
         map("n", "]d", jump(1),  "Next diagnostic")
@@ -81,18 +81,22 @@ return {
           cachePriming = { enable = false }, -- RA maintainer recommendation
           cargo = {
             allFeatures = false, -- scanning every feature is a memory hog
-            loadOutDirsFromCheck = true,
             buildScripts = { enable = true },
           },
-          checkOnSave = {
-            enable = true,
-            command = "check", -- clippy uses an order of magnitude more resources
-          },
+          -- Modern schema: checkOnSave is a bool, check.* holds the cargo
+          -- command config. The old nested form (checkOnSave = { command = ... })
+          -- parses as "invalid type: map, expected a boolean" and is ignored.
+          checkOnSave = true,
+          check = { command = "check" }, -- clippy uses an order of magnitude more resources
           diagnostics = { enable = true, disabled = { "inactive-code", "unlinked-file" } },
           procMacro = { enable = true, attributes = { enable = true } },
           files = {
             exclude = { ".direnv", ".git", ".github", ".gitlab", "bin", "node_modules", "target", "venv", ".venv" },
-            watcher = "client", -- let neovim handle file watching, not RA
+            -- "server" = rust-analyzer's native notify-crate watcher. More
+            -- reliable on macOS than Neovim's libuv client watcher, which
+            -- silently fails under kqueue FD pressure on large projects
+            -- and manifests as "LSP stops responding, need :LspRestart".
+            watcher = "server",
           },
           imports = {
             granularity = { group = "module", enforce = true },
@@ -186,25 +190,100 @@ return {
       },
     })
 
-    -- elixir-ls launcher installed by scripts/install-elixir-ls.sh detects
-    -- asdf/mise/vfox internally — do NOT wrap in `mise x` or `asdf exec`.
+    -- elixir-ls: per-project auto-install.
+    --
+    -- elixir-ls's pre-built release .beams are pinned to a specific Elixir
+    -- series, so opening a project with a different Elixir version requires
+    -- reinstalling a matching elixir-ls. The root_dir callback below runs
+    -- that check async on first attach per project — if the installed
+    -- elixir-ls doesn't match, it invokes scripts/install-elixir-ls.sh with
+    -- ELIXIR_VERSION=<mise-detected> and defers on_dir() until install
+    -- completes, so lsp never spawns against a mismatched binary.
     local elixirls_launcher = vim.fn.expand("~/.local/share/elixir-ls/language_server.sh")
-    if vim.fn.executable(elixirls_launcher) ~= 1 then
-      vim.schedule(function()
-        vim.notify(
-          "[elixir-ls] launcher missing or not executable: " .. elixirls_launcher
-          .. "\nRun: " .. vim.fn.stdpath("config"):gsub("/nvim$", "") .. "/../dotfiles/scripts/install-elixir-ls.sh"
-          .. "\n(or: scripts/install-elixir-ls.sh from your dotfiles checkout)",
-          vim.log.levels.WARN
-        )
-      end)
+    local install_script = vim.fs.dirname(vim.fn.resolve(vim.fn.stdpath("config"))) .. "/scripts/install-elixir-ls.sh"
+
+    local function pick_els_version(v)
+      if v:match("^1%.13%.")      then return "v0.20.0" end
+      if v:match("^1%.14%.")      then return "v0.28.0" end
+      if v:match("^1%.1[5678]%.") then return "v0.29.3" end
+      return "v0.30.0"
     end
+
+    local function run(cmd, cwd)
+      local r = vim.system(cmd, { cwd = cwd, text = true }):wait()
+      return r.code == 0 and r.stdout or nil
+    end
+
+    local function detect_project_elixir(cwd)
+      local mise = run({ "mise", "current", "elixir" }, cwd)
+      if mise then
+        local v = mise:gsub("%s+$", ""):gsub("%-otp%-%d+$", "")
+        if v ~= "" then return v end
+      end
+      local out = run({ "elixir", "--version" }, cwd)
+      return out and out:match("Elixir%s+([%d%.]+)") or nil
+    end
+
+    local function installed_version()
+      return (vim.fn.readfile(vim.fn.expand("~/.local/share/elixir-ls/.installed-version"), "", 1))[1]
+    end
+
+    -- Per-root_dir cache of "already verified" + single in-flight install queue.
+    -- Callbacks waiting on the queue all get fired when install completes,
+    -- since there's only one elixir-ls binary on disk at a time.
+    local checked, pending = {}, nil
+
+    local function ensure_elixir_ls(root, on_ok)
+      if checked[root]  then return on_ok() end
+      if pending        then return table.insert(pending, on_ok) end
+
+      local elixir_ver = detect_project_elixir(root)
+      if not elixir_ver then
+        vim.notify("[elixir-ls] could not detect Elixir version — attaching with whatever is installed", vim.log.levels.WARN)
+        checked[root] = true
+        return on_ok()
+      end
+
+      local needed = pick_els_version(elixir_ver)
+      if installed_version() == needed then
+        checked[root] = true
+        return on_ok()
+      end
+
+      pending = { on_ok }
+      vim.notify(
+        ("[elixir-ls] project needs %s (Elixir %s), installed %s — reinstalling in background"):format(
+          needed, elixir_ver, installed_version() or "none"),
+        vim.log.levels.INFO
+      )
+
+      vim.system({ install_script }, {
+        cwd = root,
+        env = vim.tbl_extend("force", vim.fn.environ(), { ELIXIR_VERSION = elixir_ver }),
+        text = true,
+      }, vim.schedule_wrap(function(obj)
+        local waiters = pending
+        pending = nil
+        if obj.code == 0 then
+          checked[root] = true
+          vim.notify("[elixir-ls] installed " .. needed .. " — attaching", vim.log.levels.INFO)
+          for _, cb in ipairs(waiters) do cb() end
+        else
+          vim.notify("[elixir-ls] install failed:\n" .. (obj.stderr or ""), vim.log.levels.ERROR)
+        end
+      end))
+    end
+
     vim.lsp.config("elixirls", {
       cmd = { elixirls_launcher },
       filetypes = { "elixir", "eelixir", "heex", "surface" },
-      -- Explicit root_markers so attach doesn't depend on whichever nvim-lspconfig
-      -- version is installed shipping its own default root_dir.
-      root_markers = { "mix.exs", ".git" },
+      root_dir = function(bufnr, on_dir)
+        local fname = vim.api.nvim_buf_get_name(bufnr)
+        local matches = vim.fs.find({ "mix.exs" }, { upward = true, limit = 2, path = fname })
+        local child, umbrella = unpack(matches)
+        local root = vim.fs.dirname(umbrella or child) or vim.fn.getcwd()
+        ensure_elixir_ls(root, function() on_dir(root) end)
+      end,
       settings = {
         elixirLS = {
           mixEnv = vim.env.MIX_ENV,

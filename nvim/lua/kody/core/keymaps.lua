@@ -71,7 +71,7 @@ keymap.set("v", "<leader>R", '"_d"+P', { desc = "Replace from clipboard" })
 keymap.set("n", "<leader>'", "<cmd>Telescope resume<CR>", { desc = "Resume last picker" })
 
 -- Hover documentation (helix: space+k)
-keymap.set("n", "<leader>k", function() vim.lsp.buf.hover({ max_width = 100, max_height = 30 }) end, { desc = "Hover docs" })
+keymap.set("n", "<leader>k", require("kody.util.lsp").hover, { desc = "Hover docs" })
 
 -- Quit commands
 keymap.set("n", "<leader>qq", "<cmd>qa<CR>", { desc = "Quit all" })
